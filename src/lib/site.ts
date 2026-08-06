@@ -8,6 +8,7 @@ export const SITE = {
   description:
     'Michele Fumagalli is an astrophysicist and professor at the University of Milano-Bicocca, studying how galaxies evolve and form stars by exchanging gas with their surroundings.',
   orcid: '0000-0001-6676-3842',
+  email: 'michele.fumagalli @ unimib.it',
 
   githubUser: 'mifumagalli',
   githubRepo: 'mifumagalli/michelefumagalli.com',
@@ -17,6 +18,9 @@ export const SITE = {
 
   affiliation: 'Dipartimento di Fisica «G. Occhialini», Università degli Studi di Milano-Bicocca',
   address: ['Piazza della Scienza 3', '20126 Milano (MI)', 'Italia'],
+
+  /** Served from public/. Matches the filename used by the previous site. */
+  cv: '/fumagalli_cv.pdf',
 
   nav: [
     { href: '/', label: 'Home' },

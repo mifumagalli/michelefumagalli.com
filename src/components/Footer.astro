@@ -7,9 +7,9 @@ const year = new Date().getFullYear();
   <div class="wrap inner">
     <p class="meta">© {year} {SITE.name}</p>
     <p class="meta links">
-      <a href={orcidUrl}>ORCID</a>
-      <a href="/rss.xml">RSS</a>
-      <a href="/cv.pdf">CV</a>
+      <a href={orcidUrl} target="_blank" rel="noopener noreferrer">ORCID</a>
+      <a href="/rss.xml" target="_blank" rel="noopener noreferrer">RSS</a>
+      <a href={SITE.cv} target="_blank" rel="noopener noreferrer">CV</a>
     </p>
   </div>
 </footer>

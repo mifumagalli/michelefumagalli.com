@@ -41,7 +41,7 @@ and CSS and will work on any host, with or without this toolchain.
 
 ## Still placeholders
 
-1. **`public/cv.pdf`** — a stub text file. Drop your real CV over it.
+1. ~~`public/fumagalli_cv.pdf`~~ — done.
 2. **`src/pages/contact.astro`** — add your email, or deliberately don't.
 3. **`src/pages/research.astro`** — I expanded the two sentences from your old
    site so the page isn't empty. Replace with your own text.
@@ -119,8 +119,14 @@ scripts/                    the two fetch scripts
 .github/workflows/          ci · deploy · refresh
 ```
 
-Change `--accent` in `global.css` and the whole site follows. Dark mode is
-`prefers-color-scheme` — no JavaScript, no toggle.
+Change `--accent` in `global.css` and the whole site follows. The site is
+light-only by design; there is no dark mode and no theme toggle.
+
+Links to other sites (and to the CV and RSS feed) open in a new tab. In
+`.astro` templates that's `target="_blank" rel="noopener noreferrer"` written
+out; inside Markdown/MDX content a small rehype plugin in `astro.config.mjs`
+adds it automatically, so you never have to think about it when writing a
+highlight.
 
 ---
 

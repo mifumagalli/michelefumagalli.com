@@ -12,16 +12,13 @@ import { SITE, orcidUrl } from '../lib/site';
     {SITE.address.map((line) => <>{line}<br /></>)}
   </address>
 
-  <p class="meta links">
-    <a href={orcidUrl}>ORCID {SITE.orcid}</a>
-    <a href="/cv.pdf">Curriculum vitae</a>
+  <p class="email">
+    <a href={`mailto:${SITE.email.replace(/\s+/g, '')}`}>{SITE.email}</a>
   </p>
 
-  <p class="note meta">
-    Add your email address in <code>src/pages/contact.astro</code>. It was not
-    machine-readable on the current site, which is probably deliberate — if you
-    want to keep it that way, an image or a lightly obfuscated form works, or
-    leave it out and rely on the department directory.
+  <p class="meta links">
+    <a href={orcidUrl} target="_blank" rel="noopener noreferrer">ORCID {SITE.orcid}</a>
+    <a href={SITE.cv} target="_blank" rel="noopener noreferrer">Curriculum vitae</a>
   </p>
 </Base>
 
@@ -36,10 +33,8 @@ import { SITE, orcidUrl } from '../lib/site';
   .links a { text-decoration: none; }
   .links a:hover { text-decoration: underline; }
 
-  .note {
-    margin-top: 3rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--rule);
-    max-width: var(--measure);
+  .email {
+    font-size: 1.05em;
+    margin-bottom: 1.4rem;
   }
 </style>
