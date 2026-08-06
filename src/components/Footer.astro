@@ -1,0 +1,37 @@
+---
+import { SITE, orcidUrl } from '../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="wrap inner">
+    <p class="meta">© {year} {SITE.name}</p>
+    <p class="meta links">
+      <a href={orcidUrl}>ORCID</a>
+      <a href="/rss.xml">RSS</a>
+      <a href="/cv.pdf">CV</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-block: 1.5rem 2.5rem;
+    margin-top: 4rem;
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  p { margin: 0; max-width: none; }
+
+  .links { display: flex; gap: 1.1rem; }
+  .links a { color: var(--muted); text-decoration: none; }
+  .links a:hover { color: var(--accent); }
+</style>

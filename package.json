@@ -1,0 +1,20 @@
+{
+  "name": "michelefumagalli-com",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "fetch:ads": "node scripts/fetch-ads.mjs",
+    "fetch:github": "node scripts/fetch-github.mjs",
+    "refresh": "npm run fetch:ads && npm run fetch:github"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.6"
+  }
+}

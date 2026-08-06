@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import RepoCard from '../components/RepoCard.astro';
+import { repos } from '../lib/publications';
+import { SITE } from '../lib/site';
+---
+
+<Base
+  title="Data & Code"
+  description="Public code and data products from the group, pulled from GitHub."
+>
+  <p class="eyebrow">Data &amp; Code</p>
+  <h1>Software and data</h1>
+
+  <p class="lede">
+    Public repositories I have contributed to. This list is pulled from GitHub
+    automatically — anything tagged with the
+    <code>{SITE.githubTopic}</code> topic appears here.
+  </p>
+
+  {
+    repos.length === 0 ? (
+      <div class="notice">
+        <strong>Nothing fetched yet.</strong> Add the{' '}
+        <code>{SITE.githubTopic}</code> topic to the repositories you want
+        listed, then run <code>npm run fetch:github</code>.
+      </div>
+    ) : (
+      <div class="grid">
+        {repos.map((repo) => (
+          <RepoCard repo={repo} />
+        ))}
+      </div>
+    )
+  }
+</Base>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    margin-top: 2.5rem;
+    max-width: var(--measure);
+  }
+
+  .notice {
+    margin-top: 2rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 0.92em;
+    max-width: var(--measure);
+  }
+</style>

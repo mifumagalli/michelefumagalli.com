@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, orcidUrl } from '../lib/site';
+---
+
+<Base title="Contact" description="How to reach Michele Fumagalli.">
+  <p class="eyebrow">Contact</p>
+  <h1>Get in touch</h1>
+
+  <address>
+    {SITE.affiliation}<br />
+    {SITE.address.map((line) => <>{line}<br /></>)}
+  </address>
+
+  <p class="meta links">
+    <a href={orcidUrl}>ORCID {SITE.orcid}</a>
+    <a href="/cv.pdf">Curriculum vitae</a>
+  </p>
+
+  <p class="note meta">
+    Add your email address in <code>src/pages/contact.astro</code>. It was not
+    machine-readable on the current site, which is probably deliberate — if you
+    want to keep it that way, an image or a lightly obfuscated form works, or
+    leave it out and rely on the department directory.
+  </p>
+</Base>
+
+<style>
+  address {
+    font-style: normal;
+    line-height: 1.75;
+    margin-bottom: 1.8rem;
+  }
+
+  .links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; max-width: none; }
+  .links a { text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+
+  .note {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+</style>

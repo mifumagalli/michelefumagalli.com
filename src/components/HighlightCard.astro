@@ -1,0 +1,57 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  summary: string;
+  date: Date;
+  tags?: readonly string[];
+}
+
+const { href, title, summary, date, tags = [] } = Astro.props;
+const label = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+const iso = date.toISOString().slice(0, 10);
+---
+
+<article class="card">
+  <p class="meta"><time datetime={iso}>{label}</time></p>
+  <h3><a href={href}>{title}</a></h3>
+  <p class="summary">{summary}</p>
+  {
+    tags.length > 0 && (
+      <p class="tags">
+        {tags.map((t) => (
+          <span class="tag">{t}</span>
+        ))}
+      </p>
+    )
+  }
+</article>
+
+<style>
+  .card {
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .card :global(h3) {
+    margin: 0.2rem 0 0.45rem;
+    font-size: 1.18rem;
+    line-height: 1.28;
+  }
+
+  .card :global(h3 a) {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .card :global(h3 a:hover) { color: var(--accent); }
+
+  .summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.97em;
+  }
+
+  .tags { margin: 0.7rem 0 0; }
+
+  .meta { margin: 0; }
+</style>

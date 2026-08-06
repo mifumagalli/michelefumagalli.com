@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import HighlightCard from '../../components/HighlightCard.astro';
+import { getHighlights } from '../../lib/content';
+
+const highlights = await getHighlights();
+---
+
+<Base
+  title="Highlights"
+  description="Short, plain-language notes on recent papers and results."
+>
+  <p class="eyebrow">Highlights</p>
+  <h1>Research highlights</h1>
+
+  <p class="lede">
+    Short notes on recent papers, written for anyone with an interest in
+    galaxies rather than for specialists.
+    <a href="/rss.xml">Subscribe by RSS</a>.
+  </p>
+
+  {
+    highlights.length === 0 ? (
+      <p class="meta">Nothing published yet.</p>
+    ) : (
+      <div class="list">
+        {highlights.map((h) => (
+          <HighlightCard
+            href={`/highlights/${h.id}`}
+            title={h.data.title}
+            summary={h.data.summary}
+            date={h.data.date}
+            tags={h.data.tags}
+          />
+        ))}
+      </div>
+    )
+  }
+</Base>
+
+<style>
+  .list { margin-top: 2.5rem; }
+</style>

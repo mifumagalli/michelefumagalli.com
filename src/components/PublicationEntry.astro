@@ -1,0 +1,57 @@
+---
+import { formatAuthors, primaryLink, adsLink, type Publication } from '../lib/publications';
+
+interface Props {
+  pub: Publication;
+  highlightSlug?: string;
+}
+
+const { pub, highlightSlug } = Astro.props;
+const isLead = pub.leadPosition !== null && pub.leadPosition <= 3;
+---
+
+<li class:list={['entry', { lead: isLead }]}>
+  <a class="title" href={primaryLink(pub)}>{pub.title}</a>
+  <p class="meta">
+    {formatAuthors(pub.authors)}
+    {pub.journal && <> · <em>{pub.journal}</em></>}
+    {pub.citations !== null && pub.citations > 0 && <> · {pub.citations} citations</>}
+  </p>
+  <p class="meta links">
+    <a href={adsLink(pub)}>ADS</a>
+    {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`}>arXiv</a>}
+    {pub.doi && <a href={`https://doi.org/${pub.doi}`}>DOI</a>}
+    {highlightSlug && <a class="hl" href={`/highlights/${highlightSlug}`}>Highlight</a>}
+  </p>
+</li>
+
+<style>
+  .entry {
+    margin: 0 0 1.6rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--rule);
+    max-width: var(--measure);
+  }
+
+  .entry.lead { border-left-color: var(--accent); }
+
+  .title {
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    font-weight: 560;
+    line-height: 1.4;
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.25rem;
+    text-wrap: pretty;
+  }
+  .title:hover { color: var(--accent); }
+
+  p { margin: 0 0 0.2rem; max-width: none; }
+
+  .links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.3rem; }
+  .links a { font-size: 0.76rem; text-decoration: none; letter-spacing: 0.01em; }
+  .links a:hover { text-decoration: underline; }
+  .links .hl { font-weight: 600; }
+</style>

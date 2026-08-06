@@ -1,0 +1,15 @@
+{
+  "_note": "Manual corrections that survive every refresh. The fetch scripts apply these after pulling from ADS and GitHub, so anything you fix here stays fixed.",
+
+  "_howto": {
+    "hidePublications": "Bibcodes to exclude entirely — duplicates, or a paper by a different M. Fumagalli that slipped through.",
+    "publicationFixes": "bibcode -> a partial object merged over the fetched entry, e.g. { \"title\": \"corrected title\" }",
+    "repoNotes": "repo name -> a sentence of your own, shown under the GitHub description."
+  },
+
+  "hidePublications": [],
+
+  "publicationFixes": {},
+
+  "repoNotes": {}
+}

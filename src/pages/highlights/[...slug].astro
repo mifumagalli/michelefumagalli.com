@@ -1,0 +1,113 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { getHighlights } from '../../lib/content';
+import { findByBibcode, formatAuthors, adsLink } from '../../lib/publications';
+
+export async function getStaticPaths() {
+  const highlights = await getHighlights();
+  return highlights.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+
+// Pull the bibliographic record from the auto-fetched publication list,
+// so nothing here is retyped by hand.
+const pub = findByBibcode(d.bibcode);
+
+const label = d.date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Base title={d.title} description={d.summary}>
+  <article>
+    <p class="eyebrow">
+      <a href="/highlights">Highlights</a>
+    </p>
+    <h1>{d.title}</h1>
+    <p class="meta byline">
+      <time datetime={d.date.toISOString().slice(0, 10)}>{label}</time>
+      {d.tags.length > 0 && <> · {d.tags.join(' · ')}</>}
+    </p>
+
+    {
+      d.figure && (
+        <figure>
+          <Image src={d.figure} alt={d.figureCaption ?? d.title} widths={[480, 800, 1200]} />
+          {d.figureCaption && <figcaption>{d.figureCaption}</figcaption>}
+        </figure>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      (pub || d.arxiv) && (
+        <aside class="paper">
+          <p class="eyebrow">The paper</p>
+          {pub ? (
+            <>
+              <p class="ptitle">{pub.title}</p>
+              <p class="meta">
+                {formatAuthors(pub.authors, 6)}
+                {pub.journal && <> · <em>{pub.journal}</em></>}
+                {pub.year && <> · {pub.year}</>}
+              </p>
+              <p class="meta links">
+                <a href={adsLink(pub)}>ADS</a>
+                {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`}>arXiv</a>}
+                {pub.doi && <a href={`https://doi.org/${pub.doi}`}>DOI</a>}
+              </p>
+            </>
+          ) : (
+            <p class="meta links">
+              <a href={`https://arxiv.org/abs/${d.arxiv}`}>arXiv:{d.arxiv}</a>
+            </p>
+          )}
+        </aside>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .eyebrow a { color: inherit; text-decoration: none; }
+  .eyebrow a:hover { color: var(--accent); }
+
+  h1 { margin-bottom: 0.3em; }
+  .byline { margin-bottom: 2.2rem; }
+
+  .paper {
+    margin-top: 3.5rem;
+    padding: 1.2rem 1.35rem;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+
+  .paper .eyebrow { margin-bottom: 0.5rem; }
+
+  .ptitle {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 560;
+    line-height: 1.4;
+    margin: 0 0 0.3rem;
+    max-width: none;
+  }
+
+  .paper p { max-width: none; margin-bottom: 0.25rem; }
+
+  .links { display: flex; gap: 1rem; margin-top: 0.6rem; }
+  .links a { font-size: 0.8rem; text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import PublicationEntry from '../components/PublicationEntry.astro';
+import { getHighlights } from '../lib/content';
+import { byYear, publications, isPlaceholder, publicationsGeneratedAt } from '../lib/publications';
+import { adsSearchUrl } from '../lib/site';
+
+// Map bibcode -> highlight slug so a paper with a highlight links to it.
+const highlights = await getHighlights();
+const highlightFor = new Map(
+  highlights.filter((h) => h.data.bibcode).map((h) => [h.data.bibcode!, h.id])
+);
+
+const groups = byYear();
+const stamp = publicationsGeneratedAt
+  ? new Date(publicationsGeneratedAt).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
+---
+
+<Base title="Publications" description="Refereed publications, pulled from NASA ADS.">
+  <p class="eyebrow">Publications</p>
+  <h1>Papers</h1>
+
+  <p class="lede">
+    Pulled automatically from <a href={adsSearchUrl}>NASA ADS</a> by ORCID.
+    Entries where I am among the first three authors are marked with a
+    coloured rule.
+  </p>
+
+  {
+    isPlaceholder && (
+      <div class="notice">
+        <strong>Placeholder data.</strong> This list has not been fetched yet.
+        Run <code>npm run fetch:ads</code> with an <code>ADS_TOKEN</code> set,
+        or wait for the monthly refresh workflow to open its first pull request.
+      </div>
+    )
+  }
+
+  {
+    groups.map(([year, list]) => (
+      <section class="year">
+        <h2>{year}</h2>
+        <ul>
+          {list.map((pub) => (
+            <PublicationEntry pub={pub} highlightSlug={highlightFor.get(pub.bibcode)} />
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  {
+    stamp && (
+      <p class="meta stamp">
+        {publications.length} entries · last refreshed {stamp}
+      </p>
+    )
+  }
+</Base>
+
+<style>
+  .notice {
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 0.92em;
+    max-width: var(--measure);
+    margin-bottom: 2.5rem;
+  }
+
+  .year h2 {
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+    margin-top: 2.6rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+
+  ul { list-style: none; padding: 0; margin: 0; }
+
+  .stamp { margin-top: 3rem; }
+</style>

@@ -1,0 +1,31 @@
+{
+  "_note": "PLACEHOLDER. This file is overwritten wholesale by `npm run fetch:ads`. Only one verified entry is seeded here so the page renders during local preview. Do not treat it as your publication list.",
+  "generated": null,
+  "orcid": "0000-0001-6676-3842",
+  "count": 1,
+  "publications": [
+    {
+      "bibcode": "2026arXiv260321855S",
+      "title": "The MUSE Ultra Deep Field (MUDF) VIII. The cool gas distribution surrounding galaxies at redshifts z ~ 0.5-2",
+      "authors": [
+        "Santo, Edoardo",
+        "Fumagalli, Michele",
+        "Chang, Seok-Jun",
+        "Gronke, Max",
+        "Dutta, Rajeshwari",
+        "Fossati, Matteo",
+        "Revalski, Mitchell",
+        "Rafelski, Marc"
+      ],
+      "authorCount": 8,
+      "year": 2026,
+      "pubdate": "2026-03-00",
+      "journal": "arXiv e-prints",
+      "doi": null,
+      "arxiv": "2603.21855",
+      "citations": null,
+      "refereed": false,
+      "leadPosition": 2
+    }
+  ]
+}
