@@ -1,0 +1,36 @@
+name: Refresh publications and repositories
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - env:
+          ADS_TOKEN: ${{ secrets.ADS_TOKEN }}
+        run: node scripts/fetch-ads.mjs
+      - env:
+          GITHUB_USER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/fetch-github.mjs
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          base: main
+          branch: data/refresh
+          delete-branch: true
+          title: 'Content refresh: publications and repositories'
+          commit-message: 'chore: refresh ADS and GitHub data'
+          body: |
+            Automated monthly refresh. Review the diff, then merge to publish.
+
+            If ADS mangled an entry, fix it in `src/data/overrides.json` rather
+            than editing `publications.json` — overrides survive the next refresh.
+          labels: content
