@@ -22,6 +22,11 @@ export const SITE = {
   /** Served from public/. Matches the filename used by the previous site. */
   cv: '/fumagalli_cv.pdf',
 
+  github: 'https://github.com/mifumagalli',
+
+  // Left empty, the LinkedIn icon simply isn't rendered — no dead link.
+  linkedin: 'https://www.linkedin.com/in/michele-fumagalli-6564382b7/',
+
   nav: [
     { href: '/', label: 'Home' },
     { href: '/research', label: 'Research' },
