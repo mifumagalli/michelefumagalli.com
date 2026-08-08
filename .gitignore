@@ -3,3 +3,9 @@ dist/
 .astro/
 .DS_Store
 .env
+
+# Editor backup files — these appear next to the file being edited and
+# should never be committed.
+*~
+*.swp
+*.orig

@@ -1,0 +1,133 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  title: string;
+  short?: string;
+  role?: string;
+  period?: string;
+  image?: ImageMetadata;
+  summary: string;
+  links?: readonly { label: string; href: string }[];
+}
+
+const { title, short, role, period, image, summary, links = [] } = Astro.props;
+
+// "Co-PI · 2018 – present", skipping whichever part is missing.
+const meta = [role, period].filter(Boolean).join(' · ');
+const isExternal = (href: string) => /^https?:\/\//i.test(href);
+---
+
+<article class:list={['project', { hasimg: !!image }]}>
+  {
+    image && (
+      <div class="thumb">
+        <Image src={image} alt="" widths={[220, 440]} sizes="110px" />
+      </div>
+    )
+  }
+
+  <div class="body">
+    {meta && <p class="role">{meta}</p>}
+    <h3>
+      {title}
+      {short && <span class="short">{short}</span>}
+    </h3>
+    <p class="summary">{summary}</p>
+    {
+      links.length > 0 && (
+        <p class="links">
+          {links.map((l) => (
+            <a
+              href={l.href}
+              {...(isExternal(l.href)
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {l.label}
+            </a>
+          ))}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .project {
+    padding-block: 1.35rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+
+  .project.hasimg {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 1.15rem;
+    align-items: start;
+  }
+
+  .thumb {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--rule);
+  }
+
+  .thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .role {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 620;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 0.3rem;
+    max-width: none;
+  }
+
+  h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .short {
+    font-weight: 500;
+    font-size: 0.82rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.93em;
+    max-width: none;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin: 0.6rem 0 0;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    max-width: none;
+  }
+  .links a { text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+
+  @media (max-width: 520px) {
+    .project.hasimg { grid-template-columns: 80px minmax(0, 1fr); gap: 0.9rem; }
+  }
+</style>

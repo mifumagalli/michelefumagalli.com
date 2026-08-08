@@ -1,0 +1,141 @@
+---
+import { repoMeta, hostLabel, updatedLabel } from '../lib/repos';
+
+interface Props {
+  title: string;
+  summary: string;
+  url: string;
+  doi?: string;
+  github?: string;
+  links?: readonly { label: string; href: string }[];
+}
+
+const { title, summary, url, doi, github, links = [] } = Astro.props;
+
+// Anything fetched from GitHub is supplementary — the summary above is yours.
+const meta = repoMeta(github);
+const updated = updatedLabel(meta);
+const host = hostLabel(url);
+
+const isExternal = (href: string) => /^https?:\/\//i.test(href);
+---
+
+<article class="resource">
+  <div class="head">
+    <h3>
+      <a href={url} target="_blank" rel="noopener noreferrer">{title}</a>
+    </h3>
+    <span class="host">{host}</span>
+  </div>
+
+  <p class="summary">{summary}</p>
+
+  {
+    (meta?.language || updated || meta?.stars) && (
+      <p class="facts">
+        {meta?.language && <span>{meta.language}</span>}
+        {updated && <span>updated {updated}</span>}
+        {meta?.stars !== undefined && meta.stars > 0 && <span>{meta.stars} ★</span>}
+      </p>
+    )
+  }
+
+  {
+    (doi || links.length > 0) && (
+      <p class="links">
+        {doi && (
+          <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer">
+            doi:{doi}
+          </a>
+        )}
+        {links.map((l) => (
+          <a
+            href={l.href}
+            {...(isExternal(l.href)
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {l.label}
+          </a>
+        ))}
+      </p>
+    )
+  }
+</article>
+
+<style>
+  .resource {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--bg);
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+
+  .resource:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    letter-spacing: -0.008em;
+  }
+
+  h3 a { color: var(--text); text-decoration: none; }
+  h3 a:hover { color: var(--accent); }
+
+  /* Host badge — derived from the URL, never typed by hand. */
+  .host {
+    flex: none;
+    font-family: var(--sans);
+    font-size: 0.66rem;
+    font-weight: 620;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    padding: 0.14rem 0.5rem;
+    white-space: nowrap;
+  }
+
+  .summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92em;
+    max-width: none;
+  }
+
+  .facts,
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    font-family: var(--sans);
+    max-width: none;
+  }
+
+  .facts {
+    font-size: 0.74rem;
+    color: var(--faint);
+    margin: 0.6rem 0 0;
+  }
+
+  .links {
+    font-size: 0.76rem;
+    margin: 0.55rem 0 0;
+  }
+  .links a { text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+</style>
