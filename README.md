@@ -1,136 +1,202 @@
 # michelefumagalli.com
 
-An Astro rebuild of the personal site. The publication list comes from NASA
-ADS and the code list from GitHub — both behind a review gate, so nothing
-reaches the live site until you merge a pull request.
+Personal academic site built with [Astro](https://astro.build). Static HTML,
+zero JavaScript shipped to the browser, deployed to GitHub Pages.
 
-Static output, zero JavaScript shipped to the browser, deployed to GitHub Pages.
+Publication data comes from NASA ADS automatically, behind a review gate —
+nothing reaches the live site until you merge a pull request.
 
-**Setting this up for the first time? Read [SETUP.md](SETUP.md)** — a
-step-by-step walkthrough that assumes no Astro experience. This file is the
-day-to-day reference.
+> Setting this up on a new machine, or from scratch? See **[SETUP.md](SETUP.md)**.
 
 ---
 
-## Running it locally
+## Everyday workflow
 
 ```bash
-npm install
-npm run dev        # http://localhost:4321
+npm run dev        # http://localhost:4321 — edits appear instantly
 ```
 
-Edit anything under `src/`, save, and the browser updates immediately.
+`main` is protected, so every change goes through `dev`:
 
-`npm run build` writes the finished site to `dist/`. That folder is plain HTML
-and CSS and will work on any host, with or without this toolchain.
+```bash
+git checkout dev
+git fetch origin && git merge origin/main   # pick up anything merged since
+# ... edit, check at localhost:4321 ...
+git add -A                                  # -A, not -am: catches new files
+git commit -m "Add MUDF project"
+git push origin dev
+```
 
----
+Then open a pull request into `main` on GitHub. **Build check** runs; when it's
+green, merge — and merging deploys.
 
-## Branches
-
-`main` is protected. Work on `dev`, push, open a pull request, merge.
-
-- Pushing to `dev` or opening a PR runs **Build check** (`ci.yml`).
-- Merging to `main` runs **Deploy to GitHub Pages** (`deploy.yml`).
-- On the 1st of each month, **Refresh publications and repositories**
-  (`refresh-data.yml`) fetches ADS and GitHub and opens a PR into `main` if
-  anything changed. Scheduled workflows only run from the default branch, so
-  these files must be on `main`.
-
----
-
-## Still placeholders
-
-1. **`public/cv.pdf`** — a stub text file. Drop your real CV over it.
-2. **`src/pages/contact.astro`** — add your email, or deliberately don't.
-3. **`src/pages/research.astro`** — I expanded the two sentences from your old
-   site so the page isn't empty. Replace with your own text.
-4. **`src/data/publications.json`** — one placeholder entry until the first
-   ADS fetch overwrites it.
-5. **`src/content/highlights/mudf-viii-cool-gas.mdx`** — the unedited machine
-   draft from our conversation, kept as a worked example of the file format.
-   Marked `draft: true`, so it cannot reach a production build. **Rewrite it in
-   your own voice or delete it.** Don't publish it as-is.
+> `git commit -am` skips files that didn't exist before. Since most content
+> here is *new files*, use `git add -A`.
 
 ---
 
-## Writing a highlight
+## Adding content
 
-Create `src/content/highlights/some-slug.mdx`:
+Every card on the site is one Markdown file in `src/content/`. Drop the file
+in, commit, done — no template to edit.
 
-```mdx
----
+| What | Where | Appears on |
+|---|---|---|
+| Paper highlight | `src/content/highlights/` | `/highlights`, home |
+| Current project | `src/content/projects/` | `/research` |
+| Book | `src/content/books/` | `/publications` |
+| Software or data | `src/content/resources/` | `/code` |
+
+Every type supports `draft: true` — **visible at `localhost:4321`, excluded
+from the live build**. Safe to commit, safe to merge. And `order` (lower
+first) where the sequence matters.
+
+Images go next to the file and are referenced relatively (`./figure.jpg`).
+Astro resizes them at build time; there is nothing to optimise by hand.
+
+### Highlight
+
+```yaml
 title: "A sentence, not the paper's title"
 bibcode: "2026ApJ...999..123F"   # looked up in publications.json
 arxiv: "2603.21855"
 date: 2026-09-15
-summary: "One sentence for the card and the RSS feed."
-figure: ./figure.png             # optional, resized automatically
+summary: "One sentence — used on the card and in the RSS feed."
+figure: ./figure.jpg             # optional
 figureCaption: "What the reader is looking at."
 tags: [CGM, MUSE]
 draft: false
----
-
-Three or four paragraphs.
 ```
 
-The filename is the URL. `draft: true` entries show in `npm run dev` and are
-excluded from `npm run build`, so they're safe to commit and safe to merge.
+The filename becomes the URL, so choose it deliberately — changing it later
+breaks any link to that page. `bibcode` is the useful bit: the page pulls the
+title, authors, journal and links from `publications.json`, so you never
+retype bibliographic data.
+
+### Project
+
+```yaml
+title: "MUSE Ultra Deep Field"
+short: "MUDF"                    # optional acronym
+role: "Co-PI"
+period: "2018 – present"
+image: ./mudf.jpg                # optional; cropped square at 110px
+summary: "One or two sentences."
+links:
+  - { label: "Survey site", href: "https://…" }
+order: 1
+```
+
+### Book
+
+```yaml
+title: "A Book You Wrote"
+subtitle: "Optional"
+authors: "with A. Coauthor"
+publisher: "Publisher"
+year: 2025
+cover: ./cover.jpg               # optional; portrait, shown at 90px
+synopsis: "Two or three sentences."
+links:
+  - { label: "Publisher", href: "https://…" }
+order: 1
+```
+
+### Software or data
+
+```yaml
+title: "A tool"
+kind: code                       # code | data
+summary: "What it does and who wants it."
+url: "https://github.com/…"      # or Bitbucket, Zenodo, an archive…
+doi: "10.5281/zenodo.1234567"    # optional; shown as a citable link
+github: "mifumagalli/repo"       # optional; auto-fills language + last update
+order: 1
+```
+
+The host badge (GITHUB, ZENODO, BITBUCKET …) is derived from `url` — never
+typed. Add a host to the table in `src/lib/repos.ts` to give it a nicer label.
 
 ---
 
-## The data files
+## What updates itself
 
-| File | Written by | Edit by hand? |
-|---|---|---|
-| `src/data/publications.json` | `npm run fetch:ads` | No |
-| `src/data/repos.json` | `npm run fetch:github` | No |
-| `src/data/overrides.json` | You | Yes — this is the escape hatch |
+`.github/workflows/refresh-data.yml` runs on the **1st of each month**, and can
+be triggered by hand from the Actions tab.
 
-`overrides.json` supports `hidePublications` (bibcodes to drop),
-`publicationFixes` (per-bibcode field corrections) and `repoNotes` (your own
-sentence under a repository). Overrides are re-applied on every refresh;
-direct edits to the generated files are not.
+- **Publications** — queries NASA ADS by ORCID, writes
+  `src/data/publications.json`.
+- **GitHub metadata** — reads the `github:` fields in `src/content/resources/`
+  and refreshes language and last-push dates into `src/data/repos.json`.
 
-Both fetch scripts are no-ops when nothing substantive changed. Citation
-counts and star counts are deliberately excluded from that comparison, so a
-quiet month opens no pull request — which means a PR appearing actually means
-something.
+If anything substantive changed it opens a pull request into `main`. Review the
+diff, merge, done. **Citation counts and star counts are deliberately excluded
+from the comparison**, so a quiet month opens no PR — which means a PR
+appearing actually means something.
 
-To list a repository on `/code`, add the GitHub topic **`website`** to it.
+Neither generated file should be edited by hand. To correct bad ADS data, use
+`src/data/overrides.json`:
+
+- `hidePublications` — bibcodes to drop entirely
+- `publicationFixes` — per-bibcode field corrections
+
+Overrides are re-applied on every refresh; direct edits to the generated files
+are not.
+
+The publications page shows the **last three calendar years**; the constant
+`YEARS_SHOWN` at the top of `src/pages/publications.astro` controls it, and the
+complete list is linked to ADS above and below.
 
 ---
 
-## Layout
+## Structure
 
 ```
 src/
-  lib/site.ts               name, ORCID, nav, affiliation — edit here first
-  lib/publications.ts       typed access to the fetched data + formatting
-  lib/content.ts            highlight loading, including the draft rule
-  content.config.ts         schema for highlights; a typo fails the build
-  content/highlights/       your .mdx files
-  data/                     generated JSON + your overrides
-  layouts/Base.astro        the one HTML shell
-  components/               Nav, Footer, PublicationEntry, HighlightCard, RepoCard
-  pages/                    one file per route
-  styles/global.css         all design tokens, in the :root block at the top
-scripts/                    the two fetch scripts
-.github/workflows/          ci · deploy · refresh
+  content/          highlights · projects · books · resources  ← your content
+  data/             publications.json · repos.json (generated) · overrides.json
+  pages/            one file per URL
+  components/       Nav · Footer · SocialLinks · HighlightCard ·
+                    ProjectRow · BookCard · ResourceCard · PublicationEntry
+  layouts/Base.astro   the single HTML shell — head, nav, footer
+  lib/site.ts       name, ORCID, address, links — edit here first
+  lib/*.ts          typed access to the generated data
+  styles/global.css design tokens, in the :root block at the top
+  content.config.ts schemas; a frontmatter typo fails the build
+scripts/            fetch-ads.mjs · fetch-github.mjs
+.github/workflows/  ci · deploy · refresh-data
+public/             CV, favicon, old-URL redirects
 ```
 
-Change `--accent` in `global.css` and the whole site follows. Dark mode is
-`prefers-color-scheme` — no JavaScript, no toggle.
+Everything visual lives in the `:root` block of `global.css`. Change
+`--accent` and the whole site follows. The site is light-only by design — no
+dark mode, no theme toggle.
+
+Links to other sites (plus the CV and RSS feed) open in a new tab. In `.astro`
+templates that's written out; inside Markdown a small rehype plugin in
+`astro.config.mjs` adds it automatically.
 
 ---
 
-## Keeping it alive
+## Deploying
 
-- **Four dependencies:** `astro`, `@astrojs/mdx`, `@astrojs/rss`,
-  `@astrojs/sitemap`. No theme, no CSS framework, no UI library. Turn on
-  Dependabot for monthly patch updates.
-- **Astro majors** land every 8–10 months. With static output, no host adapter
-  and no experimental APIs, upgrading is `npx @astrojs/upgrade` plus a build
-  check. Budget an hour a year.
-- **If you ever want out:** `npm run build` and commit `dist/`. It's plain
-  HTML and keeps working with no Node, no npm and no Astro.
+Nothing to run. Merging to `main` triggers `.github/workflows/deploy.yml`,
+which builds and publishes to GitHub Pages. Watch it in the Actions tab; it
+takes about a minute.
+
+The repository holds *source*. `dist/` is gitignored and built fresh on the
+runner, so the HTML visitors see is never in the repo — that's correct, not a
+mistake.
+
+---
+
+## Maintenance
+
+- **Five dependencies, all first-party Astro:** `astro`, `@astrojs/mdx`,
+  `@astrojs/rss`, `@astrojs/sitemap`, `@astrojs/markdown-remark`. No theme, no
+  CSS framework, no UI library.
+- **Astro majors** land every 8–10 months. With static output and no host
+  adapter, upgrading is `npx @astrojs/upgrade` plus a build check — about an
+  hour a year.
+- **Escape hatch:** `npm run build` and commit `dist/`. It's plain HTML and
+  keeps working with no Node, no npm and no Astro.

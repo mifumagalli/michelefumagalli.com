@@ -19,22 +19,13 @@
   --accent: #0b6e75;
   --accent-soft: #e4f0f0;
 
+  /* The site is light-only by design; this keeps scrollbars and form
+     controls light for visitors whose OS is set to dark. */
+  color-scheme: light;
+
   --measure: 68ch;
   --gap: clamp(1.5rem, 4vw, 3rem);
   --radius: 4px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141619;
-    --surface: #1c1f24;
-    --text: #e9e6e0;
-    --muted: #a3a099;
-    --faint: #7c7972;
-    --rule: #2c3037;
-    --accent: #5fbfc9;
-    --accent-soft: #16292c;
-  }
 }
 
 /* ---------------------------------------------------------------

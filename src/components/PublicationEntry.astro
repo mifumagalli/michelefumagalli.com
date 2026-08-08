@@ -11,16 +11,15 @@ const isLead = pub.leadPosition !== null && pub.leadPosition <= 3;
 ---
 
 <li class:list={['entry', { lead: isLead }]}>
-  <a class="title" href={primaryLink(pub)}>{pub.title}</a>
+  <a class="title" href={primaryLink(pub)} target="_blank" rel="noopener noreferrer">{pub.title}</a>
   <p class="meta">
     {formatAuthors(pub.authors)}
     {pub.journal && <> · <em>{pub.journal}</em></>}
-    {pub.citations !== null && pub.citations > 0 && <> · {pub.citations} citations</>}
   </p>
   <p class="meta links">
-    <a href={adsLink(pub)}>ADS</a>
-    {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`}>arXiv</a>}
-    {pub.doi && <a href={`https://doi.org/${pub.doi}`}>DOI</a>}
+    <a href={adsLink(pub)} target="_blank" rel="noopener noreferrer">ADS</a>
+    {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`} target="_blank" rel="noopener noreferrer">arXiv</a>}
+    {pub.doi && <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noopener noreferrer">DOI</a>}
     {highlightSlug && <a class="hl" href={`/highlights/${highlightSlug}`}>Highlight</a>}
   </p>
 </li>

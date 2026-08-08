@@ -1,5 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import { getProjects } from '../lib/content';
+
+const projects = await getProjects();
 ---
 
 <Base
@@ -30,13 +34,35 @@ import Base from '../layouts/Base.astro';
     that let us ask what a given observation should have looked like.
   </p>
 
-  <h2>Editing this page</h2>
-
-  <p>
-    This text is a faithful expansion of what your current site says, written
-    so the page is not empty. Replace it with your own description of the
-    group's programme, current projects and people. It lives in
-    <code>src/pages/research.astro</code>, and it can be plain prose — no
-    HTML required beyond the paragraph tags.
-  </p>
+  {
+    projects.length > 0 && (
+      <section class="projects">
+        <h2>Current projects</h2>
+        {projects.map((p) => (
+          <ProjectRow
+            title={p.data.title}
+            short={p.data.short}
+            role={p.data.role}
+            period={p.data.period}
+            image={p.data.image}
+            summary={p.data.summary}
+            links={p.data.links}
+          />
+        ))}
+      </section>
+    )
+  }
 </Base>
+
+<style>
+  .projects { margin-top: clamp(2.75rem, 6vw, 4rem); }
+
+  .projects h2 {
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+    font-size: 1.15rem;
+  }
+</style>

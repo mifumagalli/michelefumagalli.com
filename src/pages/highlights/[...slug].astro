@@ -62,14 +62,14 @@ const label = d.date.toLocaleDateString('en-GB', {
                 {pub.year && <> · {pub.year}</>}
               </p>
               <p class="meta links">
-                <a href={adsLink(pub)}>ADS</a>
-                {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`}>arXiv</a>}
-                {pub.doi && <a href={`https://doi.org/${pub.doi}`}>DOI</a>}
+                <a href={adsLink(pub)} target="_blank" rel="noopener noreferrer">ADS</a>
+                {pub.arxiv && <a href={`https://arxiv.org/abs/${pub.arxiv}`} target="_blank" rel="noopener noreferrer">arXiv</a>}
+                {pub.doi && <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noopener noreferrer">DOI</a>}
               </p>
             </>
           ) : (
             <p class="meta links">
-              <a href={`https://arxiv.org/abs/${d.arxiv}`}>arXiv:{d.arxiv}</a>
+              <a href={`https://arxiv.org/abs/${d.arxiv}`} target="_blank" rel="noopener noreferrer">arXiv:{d.arxiv}</a>
             </p>
           )}
         </aside>
