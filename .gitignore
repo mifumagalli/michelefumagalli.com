@@ -1,11 +1,23 @@
+# Build output and dependencies — regenerated on every build.
 node_modules/
 dist/
 .astro/
-.DS_Store
-.env
 
-# Editor backup files — these appear next to the file being edited and
-# should never be committed.
+# Local environment
+.env
+.env.*
+
+# Editor backups and scratch files
 *~
 *.swp
 *.orig
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+._*
+
+# Logs
+*.log
+npm-debug.log*

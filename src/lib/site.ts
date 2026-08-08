@@ -11,7 +11,6 @@ export const SITE = {
   email: 'michele.fumagalli @ unimib.it',
 
   githubUser: 'mifumagalli',
-  githubRepo: 'mifumagalli/michelefumagalli.com',
 
   affiliation: 'Dipartimento di Fisica «G. Occhialini», Università degli Studi di Milano-Bicocca',
   address: ['Piazza della Scienza 3', '20126 Milano (MI)', 'Italia'],

@@ -1,396 +1,245 @@
-# Setup walkthrough
+# Setup
 
-A step-by-step guide, written on the assumption you have not used Astro
-before. Every step says what you should see when it worked. Allow about an
-hour for Parts 1–5.
+Everything needed to get this site running from nothing — a fresh machine, a
+fresh clone, or a fresh pair of hands. Written assuming no Astro experience.
 
-If something doesn't match, jump to **Part 8: When it goes wrong** at the end.
-
----
-
-## Part 0 — The mental model
-
-Three ideas, and everything else follows from them.
-
-**1. Astro is a program, not a service.** It reads the files in `src/` and
-writes finished HTML into a folder called `dist/`. Then it exits. Think
-`pdflatex`: source in, document out, nothing left running.
-
-**2. The repository holds source, not the website.** `dist/` is deliberately
-*not* committed — it's listed in `.gitignore`. GitHub builds it fresh on every
-push. So if you browse the repo on github.com you will not find the HTML that
-visitors see. That's correct, not a mistake.
-
-**3. Two robots do the work.** One builds and publishes whenever `main`
-changes. The other wakes up monthly, asks NASA ADS for your papers, and — if
-anything changed — opens a pull request for you to review. Neither can publish
-without you.
+Day-to-day content editing is in **[README.md](README.md)**; this file is the
+one-time work.
 
 ---
 
-## Part 1 — Get it running on your Mac
+## 0 — The mental model
 
-### 1.1 Check you have Node
+Three ideas, and the rest follows.
 
-Open Terminal and run:
+**Astro is a program, not a service.** It reads `src/` and writes finished HTML
+into `dist/`, then exits. Think `pdflatex`: source in, document out, nothing
+left running.
+
+**The repository holds source, not the website.** `dist/` is gitignored and
+built fresh by GitHub on every push. Browsing the repo you will not find the
+HTML visitors see. That's correct.
+
+**Two robots do the work.** One builds and publishes whenever `main` changes.
+The other wakes monthly, asks NASA ADS for your papers, and opens a pull
+request if anything changed. Neither can publish without you.
+
+---
+
+## 1 — Run it locally
+
+### 1.1 Node
 
 ```bash
 node --version
 ```
 
-You want **v20.19 or newer**; v22 is ideal. If you get "command not found" or
-an older version, install the LTS release from
-[nodejs.org](https://nodejs.org) (the big green button) or, if you use
-Homebrew, `brew install node@22`.
+You want **v20.19 or newer**; v22 is ideal. If it's missing or old, install the
+LTS build from [nodejs.org](https://nodejs.org), or `brew install node@22`.
 
-### 1.2 Install the project's dependencies
+### 1.2 Dependencies
 
 ```bash
 cd ~/ClaudeDrive/michelefumagalli.com
 npm install
 ```
 
-This reads `package.json`, downloads Astro and three small plugins into a new
-`node_modules/` folder, and takes about a minute.
+> **Checkpoint.** Ends with `added … packages` and `found 0 vulnerabilities`.
+> A `node_modules/` folder now exists — it is gitignored, never commit it.
 
-> **Checkpoint.** It should end with something like `added 330 packages` and
-> `found 0 vulnerabilities`. A folder called `node_modules` now exists. It is
-> in `.gitignore` — never commit it.
-
-### 1.3 Start the preview server
+### 1.3 Preview server
 
 ```bash
 npm run dev
 ```
 
-> **Checkpoint.** You should see `Dev server running at http://localhost:4321`.
-> Open that address in a browser and you'll see your site: a homepage with
-> your name, and a "Recent highlights" section showing the MUDF VIII draft.
+> **Checkpoint.** `Dev server running at http://localhost:4321`. Open it and
+> you'll see the site.
 
-Leave this running while you work. Edit any file in `src/`, save it, and the
-browser updates within a second — no rebuild, no refresh. This is the main
-reason to work locally rather than editing on github.com.
-
-Press `Ctrl-C` in the Terminal to stop it.
-
-### 1.4 Try a real edit
-
-Open `src/pages/index.astro` in any text editor. Change a word in the
-paragraph beginning "I study how galaxies evolve". Save. Watch the browser.
-
-That's the whole authoring loop.
+Edit any file under `src/`, save, and the browser updates within a second.
+`Ctrl-C` stops it.
 
 ---
 
-## Part 2 — How to make a change, given that `main` is protected
+## 2 — Branches
 
-You work on `dev`. `main` only ever changes through a reviewed pull request.
-The full cycle:
+`main` is protected: it only changes through a reviewed pull request.
 
 ```bash
-# make sure you're on dev and up to date
 git checkout dev
-git pull
-
-# ... edit files, check them at localhost:4321 ...
-
-git add .
-git commit -m "Rewrite the research page"
+git fetch origin && git merge origin/main
+# ... edit ...
+git add -A
+git commit -m "Describe the change"
 git push origin dev
 ```
 
-Then on github.com: **Pull requests → New pull request**, base `main`,
-compare `dev`, create it. The **Build check** workflow runs automatically. Once
-it's green, merge. Merging to `main` triggers the deploy.
+Then **Pull requests → New pull request**, base `main`, compare `dev`. The
+**Build check** workflow runs; merge when green.
 
-> **Why the build check matters.** Astro validates your content at build time.
-> If you mistype a field name in a highlight's frontmatter, the build *fails*
-> rather than quietly publishing a broken page. Better to learn that in a pull
-> request than after it's live.
+> **Two traps, both of which have bitten this repo.**
+>
+> `git commit -am` only stages files git already tracks — every *new* file is
+> silently skipped, and CI then fails on a half-updated tree. Use `git add -A`.
+>
+> `git merge main` merges your *local* `main`, which is stale the moment a PR
+> is merged on GitHub. Use `git fetch origin && git merge origin/main`.
 
 ---
 
-## Part 3 — The GitHub settings
+## 3 — GitHub settings
 
-Six settings. Do them in this order. All are at
-`github.com/mifumagalli/michelefumagalli.com`.
+All at `github.com/mifumagalli/michelefumagalli.com`. The workflow files must
+be on `main` before any of this works — GitHub only reads workflow definitions
+from the default branch.
 
-### 3.1 Restore the missing files first
+### 3.1 Settings → Pages
 
-Your clone was missing `.github/` and `.gitignore` (hidden files get dropped
-when unzipping). Those have now been written into your `dev` branch working
-copy. Commit and push them before anything else:
+**Build and deployment → Source → GitHub Actions.**
 
-```bash
-git add .github .gitignore SETUP.md README.md
-git commit -m "Add CI, deploy and refresh workflows"
-git push origin dev
-```
+Not "Deploy from a branch" — that serves the raw repository, i.e. your `src/`
+folder, and you'd get a 404 or a directory listing.
 
-Then open a pull request from `dev` into `main` and merge it. **Nothing in
-Part 3 will work until these files are on `main`** — GitHub only reads
-workflow definitions from the default branch.
+Leave the custom domain field empty until cutover (section 5).
 
-### 3.2 Settings → Pages
+### 3.2 Settings → Actions → General
 
-Under **Build and deployment → Source**, choose **GitHub Actions**.
-
-Do *not* choose "Deploy from a branch". That mode serves the raw repository
-contents, which for this project means your `src/` folder — you'd get a 404 or
-a directory listing.
-
-Leave the custom domain field empty for now.
-
-### 3.3 Settings → Actions → General
-
-Scroll to **Workflow permissions** at the bottom and set:
+Under **Workflow permissions**:
 
 - **Read and write permissions** — selected
 - **Allow GitHub Actions to create and approve pull requests** — ticked
 
-> This second one is the single most commonly missed setting. Without it, the
-> monthly refresh will fail with `GitHub Actions is not permitted to create or
-> approve pull requests`, and you'd never see your publication list.
+> The second is the most commonly missed setting in the whole setup. Without
+> it the monthly refresh dies with `GitHub Actions is not permitted to create
+> or approve pull requests`, and you never see your publication list.
 
 Click **Save**.
 
-### 3.4 Settings → Secrets and variables → Actions
+### 3.3 Settings → Secrets and variables → Actions
 
-Click **New repository secret**.
+**New repository secret**, named exactly `ADS_TOKEN`, holding a token from
+[ADS → Settings → API Token](https://ui.adsabs.harvard.edu/user/settings/token).
 
-- **Name:** `ADS_TOKEN`
-- **Secret:** your token from
-  [ADS → Settings → API Token](https://ui.adsabs.harvard.edu/user/settings/token)
+You cannot read it back afterwards, only replace it. That's normal.
 
-Once saved you cannot read it back, only replace it. That's normal.
+### 3.4 Settings → Rules → Rulesets
 
-### 3.5 Settings → Branches (optional but recommended)
+Under **Require a pull request before merging**:
 
-You already protect `main`. Add one thing: under the rule, tick **Require
-status checks to pass before merging** and select **build** from the list.
+- **Required approvals: 0**
+- **Require approval of the most recent reviewable push** — unticked
 
-The check only appears in that list after it has run at least once, so do this
-*after* your first pull request.
+GitHub will not count your own approval, so as sole maintainer any non-zero
+value is unsatisfiable. Also tick **Require status checks to pass** and select
+`build` — it only appears in the list after it has run once.
 
-Also tick **Do not allow bypassing the above settings** only if you want the
-rule to apply to you too. Left unticked, you can still force a merge when you
-know better.
-
-### 3.6 Settings → General → Features
-
-Nothing required. If you like, untick **Wikis** and **Projects** to reduce
-clutter.
+Don't add yourself to the bypass list: that would skip the status check, which
+is the part actually protecting you.
 
 ---
 
-## Part 4 — Get your real publication list
+## 4 — First data fetch
 
-Right now `src/data/publications.json` contains a single placeholder entry.
+**Actions → Refresh publications and repositories → Run workflow**, on `main`.
 
-### 4.1 Run the refresh workflow by hand
+> Run it from `main`, not `dev`. The refresh branch is cut from wherever you
+> run it, so running from `dev` sweeps unrelated commits into the data PR.
 
-Go to the **Actions** tab → **Refresh publications and repositories** in the
-left sidebar → **Run workflow** button on the right → **Run workflow**.
+> **Checkpoint.** Green run, and a pull request titled "Content refresh:
+> publications and repositories" appears. Open **Files changed**, skim for
+> papers that aren't yours or mangled titles, then merge.
 
-Wait about a minute and refresh the page.
+If the count looks low, it's usually ORCID coverage rather than a bug — ADS
+only returns papers with your ORCID attached. Claim the missing ones on the
+ADS side and re-run.
 
-> **Checkpoint.** The run should be green, and a new pull request titled
-> "Content refresh: publications and repositories" should appear under **Pull
-> requests**.
-
-### 4.2 Review it
-
-Open the pull request and click **Files changed**. You are looking at your
-whole publication list as JSON. Skim for:
-
-- Papers that aren't yours (a different M. Fumagalli)
-- Mangled titles, missing journals
-- Anything ADS has duplicated
-
-Then merge it. Merging triggers the deploy.
-
-### 4.3 If something is wrong
-
-Do **not** edit `publications.json` — the next refresh overwrites it. Instead
-edit `src/data/overrides.json` on `dev`:
-
-```json
-{
-  "hidePublications": ["2019SomeBad.Bibcode..X"],
-  "publicationFixes": {
-    "2024ApJ...999..123F": { "title": "The title, correctly capitalised" }
-  },
-  "repoNotes": {}
-}
-```
-
-Those corrections are re-applied on every future refresh.
-
-### 4.4 Running it locally instead
-
-If you'd rather see the result before involving GitHub:
+To run it locally instead:
 
 ```bash
-export ADS_TOKEN=paste-your-token-here
+export ADS_TOKEN=your-token
 npm run fetch:ads
 ```
 
-It writes `src/data/publications.json` directly. Reload `localhost:4321` and
-the publications page fills in.
+Then `git checkout src/data/publications.json` to discard it and let the
+workflow stay the single source.
 
 ---
 
-## Part 5 — Look at the real thing
+## 5 — Custom domain cutover
 
-After the first merge to `main`, the **Deploy to GitHub Pages** workflow runs.
-When it's green, visit:
+Only once you're happy with the preview at
+`https://mifumagalli.github.io/michelefumagalli.com`.
 
-**https://mifumagalli.github.io/michelefumagalli.com**
+**GitHub allows a domain to be claimed by one repository at a time**, so the
+order matters:
 
-> **Checkpoint.** The site loads, the publications page lists your papers
-> grouped by year, and the highlights page is empty (the MUDF draft is marked
-> `draft: true`, so it deliberately doesn't appear in a production build).
+1. Old repository: **Settings → Pages** → clear the custom domain.
+2. Here: `git mv CNAME.for-cutover public/CNAME`, commit, PR, merge.
+3. Here: **Settings → Pages** → set the custom domain to
+   `www.michelefumagalli.com`.
+4. At your DNS provider, `www` is a **CNAME** to `mifumagalli.github.io`.
+5. Wait for the certificate, then tick **Enforce HTTPS** — it greys out until
+   the certificate is issued, so come back for it.
+6. Archive the old repository. Don't delete it.
 
-Some things will look wrong at this stage and are *supposed* to:
+Old URLs: `public/codes.html` redirects `/codes.html` → `/code`. Copy that
+file's pattern for any other old path that still gets traffic.
 
-- Links in the RSS feed and page metadata point at `www.michelefumagalli.com`,
-  not the `github.io` address. That's `site` in `astro.config.mjs` set to the
-  final domain, and it becomes correct at cutover.
-- `/cv.pdf` is a stub text file until you replace it.
-- The research and contact pages contain placeholder text.
-
-Fix those on `dev`, then PR into `main`.
-
----
-
-## Part 6 — Moving the domain across
-
-Only when you're happy with the preview. The order matters, because **GitHub
-allows a domain to be claimed by only one repository at a time**.
-
-1. In your **old** site's repository: **Settings → Pages** → clear the custom
-   domain field.
-2. In this repository, on `dev`:
-   ```bash
-   git mv CNAME.for-cutover public/CNAME
-   git commit -m "Claim the custom domain"
-   git push origin dev
-   ```
-   Then PR into `main` and merge.
-3. In this repository: **Settings → Pages** → set the custom domain to
-   `www.michelefumagalli.com` → **Save**.
-4. At your DNS provider, confirm `www` is a **CNAME** record pointing to
-   `mifumagalli.github.io`.
-5. Wait for GitHub to issue the TLS certificate (usually minutes, occasionally
-   up to an hour), then tick **Enforce HTTPS**.
-6. Archive the old repository — **Settings → General → Archive this
-   repository**. Don't delete it.
-
-Old links: `public/codes.html` already redirects `/codes.html` to `/code`. If
-your logs or Search Console show other old paths getting traffic, copy that
-file's pattern for each one.
+Until cutover the preview has no CSS and dead nav links — the site is served
+one level down under the old repo's domain, so root-relative paths resolve
+against the wrong site. Judge appearance at `localhost:4321`, not there.
 
 ---
 
-## Part 7 — Day-to-day recipes
+## 6 — Before going live
 
-### Publish a highlight
+Content still carrying placeholder text:
 
-Create `src/content/highlights/some-slug.mdx` on `dev`:
-
-```mdx
----
-title: "A sentence that says what you found, not the paper's title"
-bibcode: "2026ApJ...999..123F"
-arxiv: "2603.21855"
-date: 2026-09-15
-summary: "One sentence. It appears on the card and in the RSS feed."
-tags: [CGM, MUSE]
-draft: false
----
-
-Your three or four paragraphs.
-```
-
-The filename becomes the URL: `some-slug.mdx` → `/highlights/some-slug`.
-Choose it deliberately — changing it later breaks any link to that page.
-
-The `bibcode` is the useful bit: the page looks it up in `publications.json`
-and prints the title, authors, journal and links from there. You never retype
-bibliographic data.
-
-Set `draft: true` while you're working. Drafts show at `localhost:4321` and
-are excluded from the published build, so they are safe to commit and safe to
-merge.
-
-### Add a figure
-
-Put the image next to the `.mdx` file and reference it relatively:
-
-```yaml
-figure: ./cgm-profile.png
-figureCaption: "What the reader is looking at."
-```
-
-Astro generates resized versions automatically. Use PNG or JPEG; a paper
-figure exported at ~1600px wide is plenty.
-
-### Put a repository on the Data & Code page
-
-On github.com, open the repository → the gear icon next to **About** → add the
-topic **`website`** → Save. It appears in the next monthly refresh, or
-immediately if you run:
-
-```bash
-npm run fetch:github
-```
-
-To add your own sentence about it, use `repoNotes` in
-`src/data/overrides.json`, keyed by repository name.
-
-### Change the look
-
-Everything visual is in the first 40 lines of `src/styles/global.css` — the
-`:root` block. Change `--accent` and the whole site follows. The block below
-it, under `@media (prefers-color-scheme: dark)`, does the same for dark mode.
+- `src/assets/portrait.jpg` — grey placeholder; drop your photo over it,
+  square-ish, ≥700px
+- `src/pages/research.astro` — prose written as a starting point, not by you
+- `src/content/highlights/mudf-viii-cool-gas.mdx` — an unedited machine draft
+  kept as a format example. **Rewrite it or delete it**; it is `draft: true`,
+  so it cannot reach the live site by accident
+- `src/content/{projects,books,resources}/example-*.md` — format examples, all
+  `draft: true`. Delete once you have real entries
+- `src/content/*/placeholder*.jpg` — grey stand-in images
 
 ---
 
-## Part 8 — When it goes wrong
+## 7 — When it goes wrong
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Pages shows a file listing or 404 | Source is set to "Deploy from a branch" | Settings → Pages → Source → **GitHub Actions** (3.2) |
-| Refresh run fails: *not permitted to create or approve pull requests* | Missing Actions permission | Settings → Actions → General → tick the PR box (3.3) |
-| Refresh run fails: *ADS_TOKEN is not set* | Secret missing or misnamed | Settings → Secrets → exactly `ADS_TOKEN` (3.4) |
-| Monthly refresh never fires | Workflow files aren't on `main` | Scheduled workflows only run from the default branch — merge `dev` into `main` |
-| Build fails on a highlight | A frontmatter field is misspelled or missing | The error names the file and field. Required: `title`, `date`, `summary` |
-| Highlight doesn't appear on the live site | `draft: true` | Set it to `false`. It will still show at `localhost:4321` either way |
-| `npm run dev` fails immediately | Node too old, or `npm install` not run | `node --version` ≥ 20.19; then `npm install` |
-| Domain shows the old site | DNS cache, or the old repo still claims it | Clear the domain on the old repo first (6.1), then wait |
-| Publication list is missing recent papers | ADS hasn't indexed them, or your ORCID isn't on the record | Check the paper on ADS and claim it there |
+| CI: `Module not found` for a file you just added | New files never committed | `git add -A` (§2) |
+| CI: glob-loader warns a content directory doesn't exist | Same — the folder is untracked | `git add -A` |
+| CI: `npm ci` fails on the lockfile | `package.json` changed without `package-lock.json` | Commit both |
+| Pages shows a file listing or 404 | Source set to "Deploy from a branch" | §3.1 |
+| Refresh: *not permitted to create or approve pull requests* | Missing Actions permission | §3.2 |
+| Refresh: `ADS_TOKEN is not set` | Secret missing or misnamed | §3.3 |
+| Monthly refresh never fires | Workflow files aren't on `main` | Scheduled workflows run only from the default branch |
+| Deploy hangs 10 min, then re-runs fail instantly | The commit's Pages deployment was cancelled server-side; that SHA is spent | Land a new commit — re-running the same SHA can't work |
+| Build fails on a content file | Frontmatter field misspelled or missing | The error names file and field |
+| A highlight doesn't appear live | `draft: true` | Set it to `false` |
+| Can't approve your own PR | GitHub never counts the author's approval | Required approvals → 0 (§3.4) |
 
-### Getting the error text
-
-Actions tab → click the failed run → click the failed job → expand the red
-step. The last few lines are the actual error. Paste them to me and I'll read
-them.
+Getting the error text: Actions → the failed run → the failed job → expand the
+red step. The last ten lines are the actual error.
 
 ---
 
 ## Appendix — Astro in five bullets
 
-- **`.astro` files** are HTML with an optional JavaScript block at the top,
-  fenced by `---`. Code up there runs at build time only; nothing is sent to
-  the browser.
+- **`.astro` files** are HTML with an optional JavaScript block on top, fenced
+  by `---`. That code runs at build time only; nothing reaches the browser.
 - **`src/pages/` is the routing table.** One file per URL.
-  `src/pages/research.astro` becomes `/research`. No configuration.
-- **`src/layouts/Base.astro`** is the shell every page is poured into — head
-  tags, nav, footer. Change it once, every page changes.
-- **Components** in `src/components/` are reusable fragments. `<Nav />`,
-  `<HighlightCard />`. Same idea as a LaTeX macro.
-- **Content collections** are folders of Markdown with an enforced schema
-  (`src/content.config.ts`). That's what turns a typo into a build error
-  instead of a broken page.
+  `src/pages/research.astro` → `/research`. No configuration.
+- **`src/layouts/Base.astro`** is the shell every page is poured into. Change
+  it once, every page changes.
+- **Components** in `src/components/` are reusable fragments — the same idea
+  as a LaTeX macro.
+- **Content collections** are folders of Markdown with an enforced schema in
+  `src/content.config.ts`. That's what turns a typo into a build error rather
+  than a broken page.
 
 Full documentation: [docs.astro.build](https://docs.astro.build).

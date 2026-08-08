@@ -1,5 +1,4 @@
 import pubData from '../data/publications.json';
-import repoData from '../data/repos.json';
 
 export interface Publication {
   bibcode: string;
@@ -17,20 +16,7 @@ export interface Publication {
   leadPosition: number | null;
 }
 
-export interface Repo {
-  name: string;
-  description: string | null;
-  url: string;
-  homepage: string | null;
-  language: string | null;
-  stars: number;
-  pushedAt: string;
-  topics: string[];
-  note?: string | null;
-}
-
 export const publications = (pubData.publications ?? []) as Publication[];
-export const repos = (repoData.repos ?? []) as Repo[];
 export const publicationsGeneratedAt: string | null = pubData.generated ?? null;
 export const isPlaceholder = pubData.generated === null;
 
