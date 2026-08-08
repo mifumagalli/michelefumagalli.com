@@ -132,9 +132,9 @@ highlight.
 
 ## Keeping it alive
 
-- **Four dependencies:** `astro`, `@astrojs/mdx`, `@astrojs/rss`,
-  `@astrojs/sitemap`. No theme, no CSS framework, no UI library. Turn on
-  Dependabot for monthly patch updates.
+- **Five dependencies, all first-party Astro:** `astro`, `@astrojs/mdx`,
+  `@astrojs/rss`, `@astrojs/sitemap`, `@astrojs/markdown-remark`. No theme, no
+  CSS framework, no UI library. Turn on Dependabot for monthly patch updates.
 - **Astro majors** land every 8–10 months. With static output, no host adapter
   and no experimental APIs, upgrading is `npx @astrojs/upgrade` plus a build
   check. Budget an hour a year.

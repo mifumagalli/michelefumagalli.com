@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
@@ -10,7 +11,7 @@ import sitemap from '@astrojs/sitemap';
  * highlight. Links in .astro templates carry the attributes directly.
  *
  * Written by hand rather than pulling in `rehype-external-links`, to keep the
- * dependency list at four packages.
+ * dependency list small.
  */
 function rehypeOpenExternalLinksInNewTab() {
   const isExternal = (href) => /^https?:\/\//i.test(href);
@@ -46,7 +47,15 @@ export default defineConfig({
   // "codes.html" and collide with the real page.
 
   markdown: {
-    rehypePlugins: [rehypeOpenExternalLinksInNewTab],
+    // Astro 7 moved remark/rehype plugins out of `markdown.*` and into an
+    // explicit processor. `unified()` is Astro's own default pipeline —
+    // this only adds our plugin to it.
+    processor: unified({
+      rehypePlugins: [rehypeOpenExternalLinksInNewTab],
+    }),
+
+    // Syntax highlighting stays at this level; it is not part of the
+    // processor options.
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
     },
