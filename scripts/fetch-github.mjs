@@ -1,35 +1,31 @@
 #!/usr/bin/env node
 /**
- * Pull public repositories from GitHub and write src/data/repos.json.
+ * Keep GitHub metadata current for the resources that reference a repository.
  *
- *   GITHUB_USER=yourname node scripts/fetch-github.mjs
+ *   node scripts/fetch-github.mjs
  *
- * Only repositories carrying the topic in GITHUB_TOPIC (default "website")
- * are listed. That means you curate the page from GitHub itself: add the
- * topic to a repo and it appears in the next refresh, with no site edit.
+ * This does NOT decide what appears on the site. The site's Data & Code page
+ * is driven entirely by the files in src/content/resources/ — this script
+ * reads the `github: owner/repo` field out of those files and refreshes the
+ * few fields that go stale on their own (language, last push, stars).
  *
- * Repositories owned by someone else (a survey or collaboration account) can
- * be listed explicitly in EXTRA_REPOS below.
+ * Items hosted on Bitbucket, Zenodo or an institutional archive simply have
+ * no `github` field, and are untouched by this.
  *
  * A token is optional. Without one you get 60 requests/hour, which is plenty;
  * in CI, GITHUB_TOKEN raises it to 5000 and is provided automatically.
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
+const RESOURCES = join(ROOT, 'src/content/resources');
 const OUT = join(ROOT, 'src/data/repos.json');
-const OVERRIDES = join(ROOT, 'src/data/overrides.json');
 
-const USER = process.env.GITHUB_USER ?? 'mifumagalli';
-const TOPIC = process.env.GITHUB_TOPIC ?? 'website';
 const TOKEN = process.env.GITHUB_TOKEN;
-
-/** "owner/repo" entries to include regardless of who owns them. */
-const EXTRA_REPOS = [];
 
 const headers = {
   Accept: 'application/vnd.github+json',
@@ -38,66 +34,70 @@ const headers = {
   ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
 };
 
-async function gh(path) {
-  const res = await fetch(`https://api.github.com${path}`, { headers });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`GitHub returned ${res.status} for ${path}\n${body.slice(0, 300)}`);
+/** Pull every `github: owner/repo` out of the resource frontmatter. */
+async function collectSlugs() {
+  let files = [];
+  try {
+    files = (await readdir(RESOURCES)).filter((f) => /\.mdx?$/.test(f));
+  } catch {
+    console.log('No src/content/resources directory yet — nothing to do.');
+    return [];
   }
-  return res.json();
+
+  const slugs = new Set();
+  for (const f of files) {
+    const text = await readFile(join(RESOURCES, f), 'utf8');
+    const m = /^github:\s*['"]?([\w.-]+\/[\w.-]+)['"]?\s*$/m.exec(text);
+    if (m) slugs.add(m[1]);
+  }
+  return [...slugs].sort();
 }
 
-function normalise(r) {
+async function fetchRepo(slug) {
+  const res = await fetch(`https://api.github.com/repos/${slug}`, { headers });
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+  const r = await res.json();
   return {
-    name: r.full_name,
     description: r.description ?? null,
-    url: r.html_url,
-    homepage: r.homepage || null,
     language: r.language ?? null,
     stars: r.stargazers_count ?? 0,
     pushedAt: (r.pushed_at ?? '').slice(0, 10),
-    topics: (r.topics ?? []).filter((t) => t !== TOPIC).sort(),
+    homepage: r.homepage || null,
+    url: r.html_url,
   };
 }
 
 async function main() {
-  const owned = [];
-  for (let p = 1; p <= 5; p++) {
-    const batch = await gh(`/users/${USER}/repos?per_page=100&page=${p}&sort=pushed&type=owner`);
-    owned.push(...batch);
-    if (batch.length < 100) break;
+  const slugs = await collectSlugs();
+
+  if (slugs.length === 0) {
+    console.log('No resources reference a GitHub repository — nothing to fetch.');
+    return;
   }
 
-  const tagged = owned.filter(
-    (r) => !r.fork && !r.archived && !r.private && (r.topics ?? []).includes(TOPIC)
-  );
-
-  const extra = [];
-  for (const slug of EXTRA_REPOS) {
+  const repos = {};
+  for (const slug of slugs) {
     try {
-      extra.push(await gh(`/repos/${slug}`));
+      repos[slug] = await fetchRepo(slug);
+      console.log(`  ok  ${slug}`);
     } catch (err) {
-      console.warn(`  skipped ${slug}: ${err.message.split('\n')[0]}`);
+      // A renamed or private repo shouldn't fail the whole run; the page
+      // still renders from the hand-written entry, just without metadata.
+      console.warn(`  skip ${slug}: ${err.message}`);
     }
   }
 
-  let overrides = { repoNotes: {} };
-  try {
-    overrides = JSON.parse(await readFile(OVERRIDES, 'utf8'));
-  } catch {
-    /* optional */
-  }
-  const notes = overrides.repoNotes ?? {};
-
-  const repos = [...tagged, ...extra]
-    .map(normalise)
-    .map((r) => ({ ...r, note: notes[r.name] ?? notes[r.name.split('/')[1]] ?? null }))
-    .sort((a, b) => b.pushedAt.localeCompare(a.pushedAt));
-
-  // Ignore star counts and push dates when deciding whether anything changed,
-  // so a month in which nothing was published produces no pull request.
-  const signature = (list) =>
-    JSON.stringify(list.map((r) => [r.name, r.description, r.language, r.homepage, r.note]));
+  // Stars and push dates change on their own; only rewrite the file when
+  // something a reader would notice has changed, so a quiet month opens no
+  // pull request.
+  const signature = (r) =>
+    JSON.stringify(
+      Object.entries(r)
+        .sort()
+        .map(([k, v]) => [k, v.description, v.language, v.homepage])
+    );
 
   let previous = null;
   try {
@@ -106,22 +106,21 @@ async function main() {
     /* first run */
   }
 
-  if (previous && signature(previous.repos ?? []) === signature(repos)) {
-    console.log(`No change: ${repos.length} repositories tagged "${TOPIC}".`);
+  if (previous && signature(previous.repos ?? {}) === signature(repos)) {
+    console.log(`No change: ${Object.keys(repos).length} repositories.`);
     return;
   }
 
   const payload = {
-    _note: `Generated by scripts/fetch-github.mjs. Add the "${TOPIC}" topic to a repository to list it here.`,
+    _note:
+      'Generated by scripts/fetch-github.mjs from the `github:` fields in src/content/resources/. Do not edit by hand.',
     generated: new Date().toISOString().slice(0, 10),
-    user: USER,
-    topic: TOPIC,
-    count: repos.length,
+    count: Object.keys(repos).length,
     repos,
   };
 
   await writeFile(OUT, JSON.stringify(payload, null, 2) + '\n', 'utf8');
-  console.log(`Wrote ${repos.length} repositories to src/data/repos.json`);
+  console.log(`Wrote metadata for ${Object.keys(repos).length} repositories.`);
 }
 
 main().catch((err) => {

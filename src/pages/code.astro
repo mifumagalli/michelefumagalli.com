@@ -1,46 +1,75 @@
 ---
 import Base from '../layouts/Base.astro';
-import RepoCard from '../components/RepoCard.astro';
-import { repos } from '../lib/publications';
-import { SITE } from '../lib/site';
+import ResourceCard from '../components/ResourceCard.astro';
+import { getResources } from '../lib/content';
+
+const all = await getResources();
+const code = all.filter((r) => r.data.kind === 'code');
+const data = all.filter((r) => r.data.kind === 'data');
+
+const sections = [
+  { heading: 'Software', items: code },
+  { heading: 'Data', items: data },
+].filter((s) => s.items.length > 0);
 ---
 
 <Base
   title="Data & Code"
-  description="Public code and data products from the group, pulled from GitHub."
+  description="Public software and data products, wherever they are hosted."
 >
   <p class="eyebrow">Data &amp; Code</p>
   <h1>Software and data</h1>
 
   <p class="lede">
-    Public repositories I have contributed to. This list is pulled from GitHub
-    automatically — anything tagged with the
-    <code>{SITE.githubTopic}</code> topic appears here.
+    Software and data products I have contributed to. Some live on GitHub,
+    others on Bitbucket or in public archives — each entry links to wherever
+    the material actually is.
   </p>
 
   {
-    repos.length === 0 ? (
+    sections.length === 0 ? (
       <div class="notice">
-        <strong>Nothing fetched yet.</strong> Add the{' '}
-        <code>{SITE.githubTopic}</code> topic to the repositories you want
-        listed, then run <code>npm run fetch:github</code>.
+        <strong>Nothing listed yet.</strong> Add a file to{' '}
+        <code>src/content/resources/</code> for each item you want to appear.
       </div>
     ) : (
-      <div class="grid">
-        {repos.map((repo) => (
-          <RepoCard repo={repo} />
-        ))}
-      </div>
+      sections.map((s) => (
+        <section class="group">
+          <h2>{s.heading}</h2>
+          <div class="grid">
+            {s.items.map((r) => (
+              <ResourceCard
+                title={r.data.title}
+                summary={r.data.summary}
+                url={r.data.url}
+                doi={r.data.doi}
+                github={r.data.github}
+                links={r.data.links}
+              />
+            ))}
+          </div>
+        </section>
+      ))
     )
   }
 </Base>
 
 <style>
+  .group { margin-top: clamp(2.25rem, 5vw, 3rem); }
+
+  .group h2 {
+    margin-top: 0;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+    font-size: 1.15rem;
+  }
+
   .grid {
     display: grid;
-    gap: 1rem;
+    gap: 0.85rem;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
-    margin-top: 2.5rem;
     max-width: var(--measure);
   }
 

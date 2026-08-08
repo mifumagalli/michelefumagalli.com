@@ -55,4 +55,61 @@ const projects = defineCollection({
     }),
 });
 
-export const collections = { highlights, projects };
+/**
+ * Books, maintained entirely by hand — nothing about these comes from ADS.
+ * One .md file per book in src/content/books/.
+ */
+const books = defineCollection({
+  loader: glob({ base: './src/content/books', pattern: '**/*.{md,mdx}' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      subtitle: z.string().optional(),
+      /** Free text, e.g. "with A. Author" or "editor". */
+      authors: z.string().optional(),
+      publisher: z.string().optional(),
+      year: z.number().optional(),
+      /** Book cover. Portrait images work best. */
+      cover: image().optional(),
+      synopsis: z.string(),
+      links: z
+        .array(z.object({ label: z.string(), href: z.string() }))
+        .default([]),
+      /** Lower numbers first; ties fall back to newest year. */
+      order: z.number().default(100),
+      draft: z.boolean().default(false),
+    }),
+});
+
+/**
+ * Data products and software, wherever they are hosted. One .md file per
+ * item in src/content/resources/ — GitHub, Bitbucket, Zenodo, an
+ * institutional archive, all the same shape.
+ *
+ * If an entry carries a `github` slug, scripts/fetch-github.mjs looks that
+ * repository up and keeps its language and last-pushed date current. Nothing
+ * else about the entry is automated: the title and summary are yours.
+ */
+const resources = defineCollection({
+  loader: glob({ base: './src/content/resources', pattern: '**/*.{md,mdx}' }),
+  schema: () =>
+    z.object({
+      title: z.string(),
+      /** Which heading it appears under. */
+      kind: z.enum(['code', 'data']),
+      summary: z.string(),
+      /** Where a visitor should go. The host badge is derived from this. */
+      url: z.string(),
+      /** Bare DOI, e.g. "10.5281/zenodo.1234567". Shown as a citable link. */
+      doi: z.string().optional(),
+      /** "owner/repo" — enables automatic language and last-updated. */
+      github: z.string().optional(),
+      links: z
+        .array(z.object({ label: z.string(), href: z.string() }))
+        .default([]),
+      order: z.number().default(100),
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { highlights, projects, books, resources };

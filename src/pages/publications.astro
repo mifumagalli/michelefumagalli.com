@@ -1,9 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
 import PublicationEntry from '../components/PublicationEntry.astro';
-import { getHighlights } from '../lib/content';
+import BookCard from '../components/BookCard.astro';
+import { getHighlights, getBooks } from '../lib/content';
 import { byYear, publications, isPlaceholder, publicationsGeneratedAt } from '../lib/publications';
 import { adsSearchUrl } from '../lib/site';
+
+/**
+ * How many calendar years of papers to show. The complete list lives on ADS
+ * and is linked at the top and bottom of the section — this page is a recent
+ * selection, not an archive.
+ */
+const YEARS_SHOWN = 3;
+const cutoff = new Date().getFullYear() - (YEARS_SHOWN - 1);
+
+const books = await getBooks();
 
 // Map bibcode -> highlight slug so a paper with a highlight links to it.
 const highlights = await getHighlights();
@@ -11,7 +22,9 @@ const highlightFor = new Map(
   highlights.filter((h) => h.data.bibcode).map((h) => [h.data.bibcode!, h.id])
 );
 
-const groups = byYear();
+const recent = publications.filter((p) => p.year >= cutoff);
+const groups = byYear(recent);
+
 const stamp = publicationsGeneratedAt
   ? new Date(publicationsGeneratedAt).toLocaleDateString('en-GB', {
       day: 'numeric',
@@ -21,49 +34,122 @@ const stamp = publicationsGeneratedAt
   : null;
 ---
 
-<Base title="Publications" description="Refereed publications, pulled from NASA ADS.">
+<Base
+  title="Publications"
+  description="Books, and recent papers pulled from NASA ADS."
+>
   <p class="eyebrow">Publications</p>
-  <h1>Papers</h1>
-
-  <p class="lede">
-    Pulled automatically from <a href={adsSearchUrl} target="_blank" rel="noopener noreferrer">NASA ADS</a> by ORCID.
-    Entries where I am among the first three authors are marked with a
-    coloured rule.
-  </p>
+  <h1>Books and papers</h1>
 
   {
-    isPlaceholder && (
-      <div class="notice">
-        <strong>Placeholder data.</strong> This list has not been fetched yet.
-        Run <code>npm run fetch:ads</code> with an <code>ADS_TOKEN</code> set,
-        or wait for the monthly refresh workflow to open its first pull request.
-      </div>
-    )
-  }
-
-  {
-    groups.map(([year, list]) => (
-      <section class="year">
-        <h2>{year}</h2>
-        <ul>
-          {list.map((pub) => (
-            <PublicationEntry pub={pub} highlightSlug={highlightFor.get(pub.bibcode)} />
-          ))}
-        </ul>
+    books.length > 0 && (
+      <section class="books">
+        <h2>Books</h2>
+        {books.map((b) => (
+          <BookCard
+            title={b.data.title}
+            subtitle={b.data.subtitle}
+            authors={b.data.authors}
+            publisher={b.data.publisher}
+            year={b.data.year}
+            cover={b.data.cover}
+            synopsis={b.data.synopsis}
+            links={b.data.links}
+          />
+        ))}
       </section>
-    ))
-  }
-
-  {
-    stamp && (
-      <p class="meta stamp">
-        {publications.length} entries · last refreshed {stamp}
-      </p>
     )
   }
+
+  <section class="papers">
+    <h2>Papers</h2>
+
+    <p class="lede">
+      The last {YEARS_SHOWN} years, pulled automatically from NASA ADS by
+      ORCID. Papers where I am among the first three authors are marked with a
+      coloured rule.
+    </p>
+
+    <p class="full-list">
+      <a href={adsSearchUrl} target="_blank" rel="noopener noreferrer">
+        See the complete publication list on NASA ADS →
+      </a>
+    </p>
+
+    {
+      isPlaceholder && (
+        <div class="notice">
+          <strong>Placeholder data.</strong> This list has not been fetched yet.
+          Run <code>npm run fetch:ads</code> with an <code>ADS_TOKEN</code> set,
+          or wait for the monthly refresh workflow to open its first pull request.
+        </div>
+      )
+    }
+
+    {
+      groups.map(([year, list]) => (
+        <section class="year">
+          <h3>{year}</h3>
+          <ul>
+            {list.map((pub) => (
+              <PublicationEntry pub={pub} highlightSlug={highlightFor.get(pub.bibcode)} />
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <p class="full-list bottom">
+      <a href={adsSearchUrl} target="_blank" rel="noopener noreferrer">
+        See the complete publication list on NASA ADS →
+      </a>
+    </p>
+
+    {
+      stamp && (
+        <p class="meta stamp">
+          Showing {recent.length} of {publications.length} indexed entries · last
+          refreshed {stamp}
+        </p>
+      )
+    }
+  </section>
 </Base>
 
 <style>
+  h1 { margin-bottom: 0.6em; }
+
+  .books { margin-top: 2.5rem; }
+  .papers { margin-top: clamp(3rem, 7vw, 4.5rem); }
+
+  .books h2,
+  .papers h2 {
+    margin-top: 0;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+    font-size: 1.15rem;
+  }
+
+  .papers .lede { margin-bottom: 1rem; }
+
+  .full-list {
+    font-family: var(--sans);
+    font-size: 0.87rem;
+    margin: 0 0 2rem;
+    max-width: var(--measure);
+  }
+  .full-list a { text-decoration: none; }
+  .full-list a:hover { text-decoration: underline; }
+
+  .full-list.bottom {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+  }
+
   .notice {
     padding: 0.9rem 1.1rem;
     border: 1px solid var(--rule);
@@ -75,11 +161,12 @@ const stamp = publicationsGeneratedAt
     margin-bottom: 2.5rem;
   }
 
-  .year h2 {
+  .year h3 {
     font-size: 0.85rem;
+    font-weight: 620;
     letter-spacing: 0.1em;
     color: var(--faint);
-    margin-top: 2.6rem;
+    margin-top: 2.4rem;
     margin-bottom: 1.1rem;
     padding-bottom: 0.4rem;
     border-bottom: 1px solid var(--rule);
@@ -88,5 +175,5 @@ const stamp = publicationsGeneratedAt
 
   ul { list-style: none; padding: 0; margin: 0; }
 
-  .stamp { margin-top: 3rem; }
+  .stamp { margin-top: 0; }
 </style>

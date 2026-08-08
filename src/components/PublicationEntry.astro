@@ -15,7 +15,6 @@ const isLead = pub.leadPosition !== null && pub.leadPosition <= 3;
   <p class="meta">
     {formatAuthors(pub.authors)}
     {pub.journal && <> · <em>{pub.journal}</em></>}
-    {pub.citations !== null && pub.citations > 0 && <> · {pub.citations} citations</>}
   </p>
   <p class="meta links">
     <a href={adsLink(pub)} target="_blank" rel="noopener noreferrer">ADS</a>

@@ -21,3 +21,19 @@ export async function getProjects() {
     (a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)
   );
 }
+
+/** Books, by `order` then newest year. */
+export async function getBooks() {
+  const all = await getCollection('books', visible);
+  return all.sort(
+    (a, b) => a.data.order - b.data.order || (b.data.year ?? 0) - (a.data.year ?? 0)
+  );
+}
+
+/** Resources (code and data), by `order` then title. */
+export async function getResources() {
+  const all = await getCollection('resources', visible);
+  return all.sort(
+    (a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)
+  );
+}

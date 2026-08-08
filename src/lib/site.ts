@@ -13,11 +13,13 @@ export const SITE = {
   githubUser: 'mifumagalli',
   githubRepo: 'mifumagalli/michelefumagalli.com',
 
-  // Repos carrying this GitHub topic appear on /code.
-  githubTopic: 'website',
-
   affiliation: 'Dipartimento di Fisica «G. Occhialini», Università degli Studi di Milano-Bicocca',
   address: ['Piazza della Scienza 3', '20126 Milano (MI)', 'Italia'],
+  office: 'Room U2-2015 · by appointment',
+
+  /** The department profile page — the authoritative source for email,
+   *  telephone and office hours, so this site never has to be kept in sync. */
+  universityProfile: 'https://en.unimib.it/michele-fumagalli',
 
   /** Served from public/. Matches the filename used by the previous site. */
   cv: '/fumagalli_cv.pdf',
