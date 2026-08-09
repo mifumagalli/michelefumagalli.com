@@ -198,9 +198,9 @@ Content still carrying placeholder text:
 - `src/assets/portrait.jpg` — grey placeholder; drop your photo over it,
   square-ish, ≥700px
 - `src/pages/research.astro` — prose written as a starting point, not by you
-- `src/content/highlights/mudf-viii-cool-gas.mdx` — an unedited machine draft
-  kept as a format example. **Rewrite it or delete it**; it is `draft: true`,
-  so it cannot reach the live site by accident
+- `src/content/highlights/*.mdx` — the highlights drafted from your papers are
+  all `draft: true`, so they cannot reach the live site by accident. Rewrite
+  each in your own voice, then set `draft: false`
 - `src/content/{projects,books,resources}/example-*.md` — format examples, all
   `draft: true`. Delete once you have real entries
 - `src/content/*/placeholder*.jpg` — grey stand-in images
