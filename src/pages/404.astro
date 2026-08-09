@@ -5,8 +5,8 @@ import { SITE } from '../lib/site';
 /** One line of orientation per destination, keyed by the nav href. */
 const NOTES: Record<string, string> = {
   '/': 'Start here',
-  '/research': 'Gas in and around galaxies',
-  '/highlights': 'Papers in plain language',
+  '/research': 'My research in brief',
+  '/highlights': 'Recent key results',
   '/publications': 'Books and recent papers',
   '/code': 'Software and data products',
   '/contact': 'Department page and address',
@@ -27,7 +27,7 @@ const destinations = SITE.nav.map((item) => ({
     <p class="eyebrow">Error 404</p>
     <h1>That page isn't here</h1>
     <p class="lede">
-      The link may be from the previous version of this site, or the address
+      The link may be pointing to content that has moved, or the address
       may have a typo. Everything that does exist is one click away.
     </p>
   </section>
