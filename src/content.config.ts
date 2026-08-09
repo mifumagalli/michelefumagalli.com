@@ -72,6 +72,12 @@ const books = defineCollection({
       /** Book cover. Portrait images work best. */
       cover: image().optional(),
       synopsis: z.string(),
+      /** ISBN-13, as printed. */
+      isbn: z.string().optional(),
+      /** Language of this edition, e.g. "Italian". */
+      language: z.string().optional(),
+      /** Reading age as free text, e.g. "7+". Rendered as "Ages 7+". */
+      age: z.string().optional(),
       links: z
         .array(z.object({ label: z.string(), href: z.string() }))
         .default([]),
