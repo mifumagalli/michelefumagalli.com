@@ -1,14 +1,132 @@
 ---
 import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+
+/** One line of orientation per destination, keyed by the nav href. */
+const NOTES: Record<string, string> = {
+  '/': 'Start here',
+  '/research': 'Gas in and around galaxies',
+  '/highlights': 'Papers in plain language',
+  '/publications': 'Books and recent papers',
+  '/code': 'Software and data products',
+  '/contact': 'Department page and address',
+};
+
+const destinations = SITE.nav.map((item) => ({
+  ...item,
+  note: NOTES[item.href] ?? '',
+}));
 ---
 
-<Base title="Not found">
-  <p class="eyebrow">404</p>
-  <h1>That page isn't here</h1>
-  <p class="lede">
-    The link may be from the previous version of this site. Try the
-    <a href="/publications">publications</a>, the
-    <a href="/highlights">highlights</a>, or start from the
-    <a href="/">homepage</a>.
+<Base
+  title="Page not found"
+  description="That page doesn't exist. Here's everything that does."
+>
+  <section class="notfound">
+    <span class="ghost" aria-hidden="true">404</span>
+    <p class="eyebrow">Error 404</p>
+    <h1>That page isn't here</h1>
+    <p class="lede">
+      The link may be from the previous version of this site, or the address
+      may have a typo. Everything that does exist is one click away.
+    </p>
+  </section>
+
+  <nav class="tiles" aria-label="All pages">
+    {
+      destinations.map((d) => (
+        <a href={d.href}>
+          <span class="tile-label">{d.label}</span>
+          <span class="tile-note">{d.note}</span>
+        </a>
+      ))
+    }
+  </nav>
+
+  <p class="aside meta">
+    Looking for a paper? The complete list is on{' '}
+    <a
+      href={`https://ui.adsabs.harvard.edu/search/q=orcid%3A${SITE.orcid}&sort=date%20desc`}
+      target="_blank"
+      rel="noopener noreferrer">NASA ADS</a
+    >.
   </p>
 </Base>
+
+<style>
+  .notfound {
+    position: relative;
+    padding-top: 1.5rem;
+  }
+
+  /* Oversized numerals sitting behind the heading — the only ornament. */
+  .ghost {
+    position: absolute;
+    top: -2.5rem;
+    left: -0.6rem;
+    font-family: var(--sans);
+    font-size: clamp(8rem, 26vw, 15rem);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.07;
+    user-select: none;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 1.4rem + 2.4vw, 2.8rem);
+    margin-bottom: 0.45em;
+  }
+
+  .lede { max-width: 32em; }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 0.75rem;
+    margin-top: clamp(2.25rem, 5vw, 3rem);
+    max-width: var(--measure);
+  }
+
+  .tiles a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.95rem 1.05rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    text-decoration: none;
+    background: var(--bg);
+    transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+  }
+
+  .tiles a:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+    transform: translateY(-1px);
+  }
+
+  .tile-label {
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.008em;
+  }
+
+  .tile-note {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .aside {
+    margin-top: 2.25rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+</style>
