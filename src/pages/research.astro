@@ -29,12 +29,15 @@ I am also interested in the role of environment. Groups, clusters, and filaments
 This work draws on deep integral-field spectroscopy — principally MUSE on the VLT — space-based imaging and spectroscopy with HST and JWST, high-resolution absorption spectroscopy, and cosmological simulations, which turn a physical model into a prediction an observation can test.
   </p>
 
- <h1>New technologies in education</h1>
-  <p>
-Alongside my work as an astrophysicist, I have a growing interest in how modern technology — artificial intelligence, connected devices, educational robotics — is changing the way young children encounter science and mathematics.
-  </p>
-
-
+  <section class="education">
+    <h2>New technologies in education</h2>
+    <p>
+      Alongside my work as an astrophysicist, I have a growing interest in how
+      modern technology — artificial intelligence, connected devices,
+      educational robotics — is changing the way young children encounter
+      science and mathematics.
+    </p>
+  </section>
 
   {
     projects.length > 0 && (
@@ -57,14 +60,23 @@ Alongside my work as an astrophysicist, I have a growing interest in how modern 
 </Base>
 
 <style>
-  .projects { margin-top: clamp(2.75rem, 6vw, 4rem); }
+  /* Both second-level sections on this page share the same rule-under-heading
+     treatment, so the education block and the project list read as siblings. */
+  .education,
+  .projects {
+    margin-top: clamp(2.75rem, 6vw, 4rem);
+  }
 
+  .education h2,
   .projects h2 {
     margin-top: 0;
-    margin-bottom: 0.4rem;
     padding-bottom: 0.6rem;
     border-bottom: 1px solid var(--rule);
     max-width: var(--measure);
     font-size: 1.15rem;
   }
+
+  /* ProjectRow supplies its own top padding; a paragraph does not. */
+  .projects h2 { margin-bottom: 0.4rem; }
+  .education h2 { margin-bottom: 1.1rem; }
 </style>

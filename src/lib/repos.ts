@@ -34,6 +34,7 @@ const HOSTS: Record<string, string> = {
   'vizier.cds.unistra.fr': 'CDS / VizieR',
   'figshare.com': 'figshare',
   'osf.io': 'OSF',
+  'doi.eso.org': 'ESO Archive',
 };
 
 export function hostLabel(url: string): string {
