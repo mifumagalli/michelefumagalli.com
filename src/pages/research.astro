@@ -8,36 +8,38 @@ const projects = await getProjects();
 
 <Base
   title="Research"
-  description="Galaxy evolution, the circumgalactic medium, and the exchange of gas between galaxies and their surroundings."
+  description="Galaxy evolution, the circumgalactic medium, and the exchange of gas between galaxies and their surroundings. How new technologies shape STEM education."
 >
   <p class="eyebrow">Research</p>
-  <h1>Gas in and around galaxies</h1>
+  <h1>Gas in and around galaxies across cosmic time</h1>
 
   <p class="lede">
-    Galaxies do not form stars in isolation. They draw gas in from their
-    surroundings and expel it again, and the balance between those flows sets
-    how much star formation is possible.
+Galaxies do not form stars in isolation. They sit within the cosmic web, a network of filaments that connects them to one another and to a far larger reservoir of gas. Galaxies draw on that reservoir and expel gas back into it; the balance between those flows sets how many stars they can form.
   </p>
 
   <p>
-    My group studies that exchange directly — the diffuse gas in the
-    circumgalactic medium, how it is enriched with metals, how it moves, and
-    how it connects galaxies to the cosmic web they sit in. Because this gas is
-    far too faint to image in most circumstances, we work largely through the
-    absorption it imprints on background light, and through the rare cases
-    where it can be seen in emission.
+I study where and how that exchange happens. My focus is the circumgalactic medium — the diffuse gas surrounding galaxies — and three questions about it: how it is enriched with metals, how it moves, and how it connects a galaxy to the filaments feeding it. Mapping those properties across cosmic time lets us trace the paths galaxies follow to become the diverse population we see today.
   </p>
 
   <p>
-    The work combines deep integral-field spectroscopy — principally with MUSE
-    on the VLT — with space-based imaging and with cosmological simulations
-    that let us ask what a given observation should have looked like.
+I am also interested in the role of environment. Groups, clusters, and filaments leave their mark on both the circumgalactic gas and the galaxies embedded in it, and separating that mark from a galaxy's internal evolution is a large part of the problem.
   </p>
+
+   <p>
+This work draws on deep integral-field spectroscopy — principally MUSE on the VLT — space-based imaging and spectroscopy with HST and JWST, high-resolution absorption spectroscopy, and cosmological simulations, which turn a physical model into a prediction an observation can test.
+  </p>
+
+ <h1>New technologies in education</h1>
+  <p>
+Alongside my work as an astrophysicist, I have a growing interest in how modern technology — artificial intelligence, connected devices, educational robotics — is changing the way young children encounter science and mathematics.
+  </p>
+
+
 
   {
     projects.length > 0 && (
       <section class="projects">
-        <h2>Current projects</h2>
+        <h2>Current and recent projects</h2>
         {projects.map((p) => (
           <ProjectRow
             title={p.data.title}
