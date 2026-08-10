@@ -10,14 +10,33 @@ interface Props {
   year?: number;
   cover?: ImageMetadata;
   synopsis: string;
+  isbn?: string;
+  language?: string;
+  age?: string;
   links?: readonly { label: string; href: string }[];
 }
 
-const { title, subtitle, authors, publisher, year, cover, synopsis, links = [] } =
-  Astro.props;
+const {
+  title,
+  subtitle,
+  authors,
+  publisher,
+  year,
+  cover,
+  synopsis,
+  isbn,
+  language,
+  age,
+  links = [],
+} = Astro.props;
 
 // "with A. Author · Cambridge University Press · 2025"
 const meta = [authors, publisher, year].filter(Boolean).join(' · ');
+
+// "ISBN 979-12-8196-649-9 · Italian · Ages 7+"
+const details = [isbn && `ISBN ${isbn}`, language, age && `Ages ${age}`]
+  .filter(Boolean)
+  .join(' · ');
 const isExternal = (href: string) => /^https?:\/\//i.test(href);
 ---
 
@@ -35,6 +54,7 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href);
     {subtitle && <p class="subtitle">{subtitle}</p>}
     {meta && <p class="meta">{meta}</p>}
     <p class="synopsis">{synopsis}</p>
+    {details && <p class="meta details">{details}</p>}
     {
       links.length > 0 && (
         <p class="links">
@@ -100,6 +120,10 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href);
   }
 
   .meta { margin: 0 0 0.55rem; max-width: none; }
+
+  /* Same treatment as the author/publisher line, but it sits below the
+     synopsis, so the margin flips to the top. */
+  .details { margin: 0.55rem 0 0; }
 
   .synopsis {
     margin: 0;
