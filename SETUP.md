@@ -195,8 +195,7 @@ against the wrong site. Judge appearance at `localhost:4321`, not there.
 
 Content still carrying placeholder text:
 
-- `src/assets/portrait.jpg` — grey placeholder; drop your photo over it,
-  square-ish, ≥700px
+- `src/assets/portrait.jpg` — profile picture
 - `src/pages/research.astro` — prose written as a starting point, not by you
 - `src/content/highlights/*.mdx` — the highlights drafted from your papers are
   all `draft: true`, so they cannot reach the live site by accident. Rewrite
