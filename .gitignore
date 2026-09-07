@@ -21,3 +21,6 @@ dist/
 # Logs
 *.log
 npm-debug.log*
+
+# Local operational notes — kept alongside the repo, not part of the site.
+handoff_unimib.md
