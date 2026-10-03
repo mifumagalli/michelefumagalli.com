@@ -56,7 +56,10 @@ async function page(start) {
   const url = `${ENDPOINT}?${new URLSearchParams({
     q: `orcid:${ORCID}`,
     fl: FIELDS,
-    sort: 'date desc',
+    // pubdate is month-granular, so many records tie on date. Without a unique
+    // tiebreaker ADS may order ties differently on each request, and records
+    // can shuffle across a page boundary (one dropped, another duplicated).
+    sort: 'date desc,bibcode desc',
     rows: String(ROWS),
     start: String(start),
   })}`;
@@ -147,6 +150,16 @@ async function main() {
   for (let start = ROWS; start < total; start += ROWS) {
     const next = await page(start);
     docs.push(...next.docs);
+  }
+
+  // Paging must return every record exactly once. If it didn't (e.g. the ADS
+  // index changed between requests), fail rather than write a list that is
+  // silently missing a paper; the next scheduled run will retry.
+  const unique = new Set(docs.map((d) => d.bibcode)).size;
+  if (docs.length !== total || unique !== total) {
+    throw new Error(
+      `Paging mismatch: ADS reported ${total} records, received ${docs.length} (${unique} unique). Not writing.`
+    );
   }
 
   const overrides = await loadOverrides();
