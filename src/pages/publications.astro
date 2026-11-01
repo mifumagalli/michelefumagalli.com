@@ -7,7 +7,7 @@ import { byYear, publications, isPlaceholder, publicationsGeneratedAt } from '..
 import { adsSearchUrl } from '../lib/site';
 
 /**
- * How many calendar years of papers to show. The complete list lives on ADS
+ * How many calendar years of papers to show. The complete list lives on ADS/SciX
  * and is linked at the top and bottom of the section — this page is a recent
  * selection, not an archive.
  */
@@ -36,7 +36,7 @@ const stamp = publicationsGeneratedAt
 
 <Base
   title="Publications"
-  description="Books, and recent papers pulled from NASA ADS."
+  description="Books, and recent papers pulled from NASA ADS/SciX."
 >
   <p class="eyebrow">Publications</p>
   <h1>Books and papers</h1>
@@ -68,14 +68,14 @@ const stamp = publicationsGeneratedAt
     <h2>Papers</h2>
 
     <p class="lede">
-      The last {YEARS_SHOWN} years, pulled automatically from NASA ADS by
+      The last {YEARS_SHOWN} years, pulled automatically from NASA ADS/SciX by
       ORCID. Papers where I am among the first three authors are marked with a
       coloured rule.
     </p>
 
     <p class="full-list">
       <a href={adsSearchUrl} target="_blank" rel="noopener noreferrer">
-        See the complete publication list on NASA ADS →
+        See the complete publication list on ADS/SciX →
       </a>
     </p>
 
@@ -104,7 +104,7 @@ const stamp = publicationsGeneratedAt
 
     <p class="full-list bottom">
       <a href={adsSearchUrl} target="_blank" rel="noopener noreferrer">
-        See the complete publication list on NASA ADS →
+        See the complete publication list on ADS/SciX →
       </a>
     </p>
 

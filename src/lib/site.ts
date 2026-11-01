@@ -38,5 +38,6 @@ export const SITE = {
   ],
 } as const;
 
-export const adsSearchUrl = `https://ui.adsabs.harvard.edu/search/q=orcid%3A${SITE.orcid}&sort=date%20desc`;
+/** Full publication list on ADS/SciX, newest first, astrophysics discipline. */
+export const adsSearchUrl = `https://scixplorer.org/search?q=orcid%3A${SITE.orcid}&sort=date+desc&d=astrophysics`;
 export const orcidUrl = `https://orcid.org/${SITE.orcid}`;

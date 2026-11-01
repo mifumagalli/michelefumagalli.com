@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE } from '../lib/site';
+import { SITE, adsSearchUrl } from '../lib/site';
 
 /** One line of orientation per destination, keyed by the nav href. */
 const NOTES: Record<string, string> = {
@@ -46,9 +46,9 @@ const destinations = SITE.nav.map((item) => ({
   <p class="aside meta">
     Looking for a paper? The complete list is on{' '}
     <a
-      href={`https://ui.adsabs.harvard.edu/search/q=orcid%3A${SITE.orcid}&sort=date%20desc`}
+      href={adsSearchUrl}
       target="_blank"
-      rel="noopener noreferrer">NASA ADS</a
+      rel="noopener noreferrer">ADS/SciX</a
     >.
   </p>
 </Base>
