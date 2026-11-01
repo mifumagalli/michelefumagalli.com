@@ -3,7 +3,7 @@
 Personal academic site built with [Astro](https://astro.build). Static HTML,
 zero JavaScript shipped to the browser, deployed to GitHub Pages.
 
-Publication data comes from NASA ADS automatically, behind a review gate —
+Publication data comes from NASA ADS/SciX automatically, behind a review gate —
 nothing reaches the live site until you merge a pull request.
 
 > Setting this up on a new machine, or from scratch? See **[SETUP.md](SETUP.md)**.
@@ -124,7 +124,7 @@ typed. Add a host to the table in `src/lib/repos.ts` to give it a nicer label.
 `.github/workflows/refresh-data.yml` runs on the **1st of each month**, and can
 be triggered by hand from the Actions tab.
 
-- **Publications** — queries NASA ADS by ORCID, writes
+- **Publications** — queries NASA ADS/SciX by ORCID, writes
   `src/data/publications.json`.
 - **GitHub metadata** — reads the `github:` fields in `src/content/resources/`
   and refreshes language and last-push dates into `src/data/repos.json`.
@@ -145,7 +145,7 @@ are not.
 
 The publications page shows the **last three calendar years**; the constant
 `YEARS_SHOWN` at the top of `src/pages/publications.astro` controls it, and the
-complete list is linked to ADS above and below.
+complete list is linked to ADS/SciX above and below.
 
 ---
 

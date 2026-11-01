@@ -52,9 +52,10 @@ export function formatAuthors(authors: string[], max = 3): string {
 export function primaryLink(p: Publication): string {
   if (p.doi) return `https://doi.org/${p.doi}`;
   if (p.arxiv) return `https://arxiv.org/abs/${p.arxiv}`;
-  return `https://ui.adsabs.harvard.edu/abs/${p.bibcode}`;
+  return adsLink(p);
 }
 
+/** Abstract page on ADS/SciX (scixplorer.org replaced ui.adsabs.harvard.edu in Nov 2026). */
 export function adsLink(p: Publication): string {
-  return `https://ui.adsabs.harvard.edu/abs/${encodeURIComponent(p.bibcode)}/abstract`;
+  return `https://scixplorer.org/abs/${encodeURIComponent(p.bibcode)}/abstract`;
 }

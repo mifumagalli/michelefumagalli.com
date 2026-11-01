@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /**
- * Pull the publication list from NASA ADS and write src/data/publications.json.
+ * Pull the publication list from NASA ADS/SciX and write src/data/publications.json.
  *
  *   ADS_TOKEN=xxxx node scripts/fetch-ads.mjs
  *
- * Get a token from https://ui.adsabs.harvard.edu/user/settings/token
+ * Get a token from https://scixplorer.org/user/settings/token
+ * (ADS became SciX in Nov 2026. ADS says existing API use keeps working, so
+ * the endpoint below is unchanged.)
  * In CI it is read from the ADS_TOKEN repository secret.
  *
  * The output is deterministic (stable ordering, fixed key order) so that a
@@ -44,7 +46,7 @@ const ROWS = 200;
 if (!TOKEN) {
   console.error(
     'ADS_TOKEN is not set.\n' +
-      'Get one at https://ui.adsabs.harvard.edu/user/settings/token and either\n' +
+      'Get one at https://scixplorer.org/user/settings/token and either\n' +
       '  export ADS_TOKEN=...      (locally)\n' +
       '  or add it as a repository secret named ADS_TOKEN (in CI).'
   );

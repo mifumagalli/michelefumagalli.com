@@ -21,7 +21,7 @@ built fresh by GitHub on every push. Browsing the repo you will not find the
 HTML visitors see. That's correct.
 
 **Two robots do the work.** One builds and publishes whenever `main` changes.
-The other wakes monthly, asks NASA ADS for your papers, and opens a pull
+The other wakes monthly, asks NASA ADS/SciX for your papers, and opens a pull
 request if anything changed. Neither can publish without you.
 
 ---
@@ -118,7 +118,9 @@ Click **Save**.
 ### 3.3 Settings → Secrets and variables → Actions
 
 **New repository secret**, named exactly `ADS_TOKEN`, holding a token from
-[ADS → Settings → API Token](https://ui.adsabs.harvard.edu/user/settings/token).
+[SciX → Settings → API Token](https://scixplorer.org/user/settings/token).
+ADS says existing API setups keep working after the November 2026 move to SciX,
+so a token created on the old ADS site should not need replacing.
 
 You cannot read it back afterwards, only replace it. That's normal.
 
@@ -151,7 +153,7 @@ is the part actually protecting you.
 
 If the count looks low, it's usually ORCID coverage rather than a bug — ADS
 only returns papers with your ORCID attached. Claim the missing ones on the
-ADS side and re-run.
+ADS/SciX side and re-run.
 
 To run it locally instead:
 
